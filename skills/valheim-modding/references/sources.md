@@ -23,6 +23,8 @@ the installed code remains authoritative under the shared source-of-truth rule.
 | [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) | Loader ZIP and installation |
 | [BepInEx docs](https://docs.bepinex.dev/) | Select the BepInEx 5 documentation, not an unrelated loader generation |
 | [r2modman](https://thunderstore.io/package/ebkr/r2modman/) / [source code](https://github.com/ebkr/r2modmanPlus/) / [releases](https://github.com/ebkr/r2modmanPlus/releases) | Profiles, downloads, and implementation of mod installation and game launching; inspect the matching release |
+| [Gale](https://github.com/Kesomannen/gale) | Alternative mod manager; official source and downloads |
+| [Macheim](https://github.com/lofcgi/macheim) | Alternative Valheim mod manager for macOS; official source and downloads |
 | [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) | Cross-platform build tools |
 | [VS Code](https://code.visualstudio.com/download) / [JetBrains Rider](https://www.jetbrains.com/rider/download/) | Editors |
 | [Git](https://git-scm.com/downloads) | Version control and Git Bash |
@@ -57,11 +59,46 @@ is a community reference for AssetRipper exports, editor setup, and shader
 limitations. Read the version-matching section critically; the page also contains
 old workflows. See [asset inspection](assets.md#unity-project-reference) for scope.
 
-[Valheim Wiki](https://valheim.fandom.com/wiki/Valheim_Wiki) is a secondary starting
-point for item names, crafting, enemies, and player questions. It may be incomplete
-or outdated. Follow the shared source-of-truth rule: confirm mechanics against the
-installed game code and the asset values it consumes; explain discrepancies rather
-than treating wiki text as authoritative.
+[Valheim Wiki](https://valheim.fandom.com/wiki/Valheim_Wiki) is a fan-maintained,
+secondary reference for player questions and page discovery. Its main page links
+to focused families such as [Creatures](https://valheim.fandom.com/wiki/Creatures),
+[Weapons](https://valheim.fandom.com/wiki/Weapons),
+[Armor](https://valheim.fandom.com/wiki/Armor),
+[Crafting](https://valheim.fandom.com/wiki/Crafting),
+[Biomes](https://valheim.fandom.com/wiki/Biomes), and
+[Food](https://valheim.fandom.com/wiki/Food). Use the page type that matches the
+question:
+
+| Page family | Useful fields to look for |
+| --- | --- |
+| Creature or boss | Biome, internal ID, health, attacks and damage types, resistances, drops, spawning, taming, and boss summoning or combat notes |
+| Weapon or shield | Weapon type, damage by attack, stamina, durability, block/parry values, special attacks, and crafting source |
+| Armor or accessory | Armor by quality, weight, set effects, movement or status effects, crafting station, and upgrade costs |
+| Item, material, or food | Internal ID, source or drops, ingredients, output, station, use, and progression unlocks |
+| Crafting or station | Creation and upgrade recipes, station and level, processing steps, fuel, and nearby requirements |
+| Biome or world feature | Resources, gatherables, creatures, dungeons, points of interest, and progression context |
+| Mechanics (damage, taming, skills, world generation) | Rules, multipliers, thresholds, and conditions that help identify the relevant game code |
+
+For quick discovery, the wiki's suggestion endpoint accepts a query and returns
+candidate page titles in JSON:
+
+```text
+https://valheim.fandom.com/wikia.php?controller=UnifiedSearchSuggestions&method=getSuggestions&query={url-encoded-query}&format=json&scope=internal
+```
+
+Choose the matching suggestion, open that specific article, and use its sections
+or tables to identify the facts and assets to check. For an exact recipe, weapon,
+creature, or biome question, follow the article's internal ID or linked names into
+the installed game's code and assets. Treat wiki values and strategies as leads,
+not proof: pages can be incomplete, outdated, or version-dependent. Explain any
+discrepancy instead of treating the wiki as authoritative.
+
+During the current session, keep each fetched HTML article available in working
+context, keyed by its canonical page URL, and reuse it instead of requesting the
+same page again. Fetch it again only if the user asks for a refresh or the needed
+content was not captured. This is session-only caching: do not save wiki pages to
+the persistent disk cache or repository by default. It does not replace checking
+game behavior against the installed code and assets.
 
 [Valheim - Topic on YouTube](https://www.youtube.com/channel/UCaIQQvS5S-dLgf8XbX1Prkg)
 is an additional user-supplied media reference. Its feed identifies it as a Topic

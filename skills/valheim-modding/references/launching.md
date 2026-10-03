@@ -10,7 +10,7 @@ The store launch route is independent of the session's
 
 ## Resolve the launch context
 
-- Use the known store, OS, installation, and selected r2modman profile. Ask only
+- Use the known store, OS, installation, and selected mod-manager profile. Ask only
   if the store or profile is ambiguous; do not silently choose the `dev` example.
 - The installed-game prerequisite must pass. Also verify the selected profile's
   BepInEx preloader and matching bootstrap files. Do not install or switch loaders
@@ -24,6 +24,10 @@ The store launch route is independent of the session's
   launch arguments from the selected configuration without exposing secrets.
 
 ## What Start modded prepares
+
+The implementation below is specific to r2modman. For Gale or Macheim, prefer
+that manager's modded launch and inspect its matching release before reproducing
+it manually. Do not assume identical profile paths or bootstrap behavior.
 
 The checked manager validates the game directory, calls `linkProfileFiles`, then
 dispatches `startModded` to the platform runner. `ModLinker` synchronizes profile
@@ -55,7 +59,7 @@ inspection, not a guessed DLL. Recheck upstream for unsupported/new versions.
 
 ## Windows Steam and Xbox launches
 
-Define the [environment variables](environment.md#install-and-isolate) in the
+Define the [environment variables](environment.md#install-and-isolate-a-modding-profile) in the
 current shell. `VALHEIM_PATH` is the resolved game directory, `BEPINEX_PATH` is
 the selected profile's `BepInEx` directory, and `STEAM_PATH` is the Steam client
 directory (not necessarily the parent of the game library).

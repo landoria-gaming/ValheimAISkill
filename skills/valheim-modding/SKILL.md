@@ -14,7 +14,17 @@ project. This skill works without private Landoria repositories.
 Before any Valheim task, locate the user's installed game (client or dedicated
 server) and verify read access to its actual directory, managed DLLs, and asset
 files. Accept the real path on Windows, Linux, or macOS; do not assume the Steam
-default or require write access.
+default or require write access. If the path has not been supplied, first reuse
+the last verified path in the local persistent skill cache; otherwise ask for
+the game path once and remember it there. Revalidate a remembered path before
+use and after an update. This game access is needed for player support and game
+data questions too; it does not mean the user needs a modding setup.
+
+BepInEx, a mod-manager profile, build tools, and their paths are task-specific:
+require them only to create, build, launch, or diagnose a mod, or to inspect
+mod-specific logs. Do not ask a player setting up a vanilla-game question to
+install BepInEx or configure developer environment variables. See
+[Environment](references/environment.md) for the distinction.
 
 **If Valheim is not installed, or the agent cannot read its game directory, stop.**
 The only permitted help is installing a legitimate copy of Valheim and helping the
@@ -39,6 +49,11 @@ task-specific workflows below.
   Derive consistent project, assembly, plugin ID, package, and display names.
 - For an existing mod, follow its structure and inspect only the relevant code.
   A small fix does not need a new planning phase.
+- For player questions, use the [Valheim Wiki guide](references/sources.md#community-reference)
+  to find a relevant page. Reuse its HTML within the current session instead of
+  fetching the same page again, then verify game mechanics against installed code
+  and assets. Cache only focused inspection results persistently; do not build a
+  full-game index.
 - Start client-side when that meets the need. Explicitly describe any server or
   other-player requirements; do not turn a local feature into a network protocol.
 
@@ -50,7 +65,10 @@ task-specific workflows below.
   cannot be established despite access, label it unverified; missing game access
   still triggers the hard prerequisite above.
 - Keep documents, comments, and commit messages in concise, simple English.
-  Talk to the user in their language. Prefer useful bullets and tables.
+  Prefer useful bullets and tables.
+- Talk to the user in their language, with gamers as the audience: use a relaxed,
+  friendly, accessible tone without forced slang. In French, use "tu" rather than
+  "vous". Explain technical terms when needed; do not assume modding experience.
 - Prefer maintained open-source tools when they meet the task equally well.
   Preserve a tool explicitly chosen by the user unless it cannot meet the need.
 - Prefer cross-platform tools, dependencies, scripts, paths, and build steps that
@@ -90,10 +108,10 @@ an evidence-backed answer; they do not require project generation or game testin
 | Task | Read |
 | --- | --- |
 | Understand game architecture, client/host/dedicated roles, networking, or save formats | [Architecture](references/architecture.md) |
-| Explain mechanics, bosses, weaknesses, or crafting recipes | [Gameplay advice](references/validation.md#gameplay-advice); verify relevant installed code and game data |
+| Explain mechanics, bosses, weaknesses, or crafting recipes | Use [Gameplay advice](references/validation.md#gameplay-advice); the [Valheim Wiki guide](references/sources.md#community-reference) can help find a relevant page, then verify against installed code and assets |
 | Help a player who is stuck or sees a bug | [Support and diagnosis](references/validation.md#player-support-and-diagnosis); inspect game code through [Environment](references/environment.md) only when needed |
 | Explain console or mod commands, devcommands, debugmode, or admin restrictions | [Commands](references/commands.md) |
-| Inspect DLLs | [Inspection scripts](references/inspection-scripts.md#code-inspect-assemblies-and-types), then [Environment](references/environment.md) for manual inspection |
+| Inspect DLLs | [Inspection scripts](references/inspection-scripts.md#code-inspect-assemblies-and-types); use its version-keyed full decompilation cache for broad searches, then [Environment](references/environment.md) for manual inspection |
 | Inspect or extract prefabs, recipes, translations, or images | [Inspection scripts](references/inspection-scripts.md#assets-search-inspect-and-extract), then [Assets](references/assets.md) for unsupported cases |
 | Export a static model for Unity Editor | [Model export](references/inspection-scripts.md#static-models-for-unity-editor); not yet for skinned or animated characters |
 | Create a mod or change its setup | [Environment](references/environment.md), then [Development](references/development.md) and [Validation](references/validation.md) for implementation |

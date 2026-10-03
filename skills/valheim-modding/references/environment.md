@@ -2,6 +2,9 @@
 
 ## Supported approach
 
+This toolchain is for mod development only. Gameplay questions and vanilla-game
+support need access to the installed game files, not this setup.
+
 Use the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0),
 [VS Code](https://code.visualstudio.com/download) or
 [JetBrains Rider](https://www.jetbrains.com/rider/download/), and Bash-compatible scripts.
@@ -22,10 +25,36 @@ from NuGet; the mod runs on the game's Mono runtime, not the desktop .NET Framew
 Do not assume every net48 API or native dependency is portable.
 No Visual Studio desktop workload or Windows Build Tools is required by the template.
 
-## Install and isolate
+## What each task needs
+
+| Task | Required local setup |
+| --- | --- |
+| Ask about Valheim gameplay, recipes, commands, or a vanilla-game problem | Read access to the installed Valheim game files. No BepInEx profile or developer tools are required. |
+| Diagnose a mod problem or inspect BepInEx logs | The game files and, when relevant, access to the user's selected mod-manager profile and logs. |
+| Create, build, launch, or test a mod | The game files, selected BepInEx profile, and the build/runtime tools needed by that task. |
+
+Resolve the game directory from an explicit path or `VALHEIM_PATH` when provided.
+Otherwise, check the last verified local path, then common Steam libraries and
+the standard Xbox location. If multiple installs are accessible, ask which one
+to use. After verifying that the managed assembly and game data are readable,
+remember the path and assembly fingerprint in the user's persistent skill cache,
+outside the repository. Revalidate it on later requests; if it moved or became
+inaccessible, ask for the new path. Never put it in the mod, repository, README,
+or package. The user needs no developer environment variable for gameplay help.
+
+## Install and isolate a modding profile
+
+Only use this setup for mod development, modded launch, or mod-specific
+diagnostics. Do not make it a prerequisite for ordinary gameplay questions or
+vanilla-game support.
 
 - Install [Valheim](https://www.valheimgame.com/) through the chosen store.
-- Install [r2modman](https://thunderstore.io/package/ebkr/r2modman/).
+- Use the player's chosen mod manager. Open-source options include
+  [r2modman](https://thunderstore.io/package/ebkr/r2modman/),
+  [Gale](https://github.com/Kesomannen/gale) for Windows/Linux (GPL-3.0), and
+  [Macheim](https://github.com/lofcgi/macheim) for macOS (MIT).
+  Check the selected manager's current store and platform support; do not require
+  migration to r2modman.
 - Create a profile such as `dev`; install
   [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/).
 - Launch modded once to create config and logs. Keep this profile for development.
@@ -35,14 +64,16 @@ No Visual Studio desktop workload or Windows Build Tools is required by the temp
 
 | Variable | Purpose / Windows example |
 | --- | --- |
-| `VALHEIM_PATH` | Game root containing the executable and game data |
+| `VALHEIM_PATH` | Optional override: game root containing the executable and game data; normally discovered and remembered after first verification |
 | Steam default | `%ProgramFiles(x86)%\Steam\steamapps\common\Valheim` |
 | Xbox default root | `C:\XboxGames\Valheim`; check whether the executable/data are under `Content` |
-| `BEPINEX_PATH` | `%APPDATA%\r2modmanPlus-local\Valheim\profiles\dev\BepInEx` |
+| `BEPINEX_PATH` | Optional task-specific path to the selected profile's BepInEx directory; resolve only when the task needs that profile |
 | `STEAM_PATH` | Steam client directory containing `Steam.exe`; resolve it independently of the game library |
 
-Resolve paths on the actual machine. Use `%APPDATA%`, not a personal username, in
-Windows documentation. Restart the editor/agent after changing persistent variables.
+Resolve paths from the selected manager on the actual machine; the profile paths
+below and above are r2modman examples, not shared layouts. Use `%APPDATA%`, not a
+personal username, in Windows documentation. Restart the editor/agent after
+changing persistent variables.
 
 | Context | Variable syntax |
 | --- | --- |
@@ -51,7 +82,7 @@ Windows documentation. Restart the editor/agent after changing persistent variab
 | Git Bash / Bash | `$APPDATA`, `$VALHEIM_PATH` |
 | MSBuild | `$(VALHEIM_PATH)`, `$(BepInExPath)` |
 
-Git Bash example (session only; no secrets):
+Git Bash example for a mod-development session only (no secrets):
 
 ```bash
 export VALHEIM_PATH='C:/Program Files (x86)/Steam/steamapps/common/Valheim'

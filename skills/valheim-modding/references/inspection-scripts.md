@@ -32,13 +32,25 @@ python scripts/inspect_code.py --game "/path/to/Valheim" types --query ItemDrop
 python scripts/inspect_code.py --game "/path/to/Valheim" type ItemDrop --query GetHoverName
 python scripts/inspect_code.py --game "/path/to/Valheim" type Character --il
 python scripts/inspect_code.py --game "/path/to/Valheim" --assembly assembly_guiutils.dll type Localization
+python scripts/inspect_code.py --game "/path/to/Valheim" decompile
 ```
 
 `types` lists all supported kinds and filters names without decompiling the whole
 game. `type` writes one C# or IL file and reports its absolute path; `--print`
 prints the code, and `--query` returns matching lines. Use `rg` on that cached
-file when more context is needed. No DLL is executed. Full project decompilation
-remains an explicit ILSpy operation, not the default for a question.
+file when more context is needed. No DLL is executed.
+
+Use `decompile` when a question needs broad searches across multiple classes or
+assemblies. It decompiles `assembly_valheim.dll`, `assembly_utils.dll`, and
+`assembly_guiutils.dll` into a persistent local C# project, then reports its path.
+Search that directory with `rg` rather than decompiling individual types again.
+The cache key includes the game version read from the installed `Version` type,
+the SHA-256 of each selected assembly, the managed reference DLL stamps, and the
+ILSpy version. Its manifest also verifies every generated source file before a
+cache hit. A hotfix, changed reference set, ILSpy update, or damaged output gets
+a separate extraction; old version folders are retained. This is decompiled
+inspection material, not official source code, and must not be committed,
+distributed, or treated as runtime behavior proof by itself.
 
 ## Assets: search, inspect, and extract
 
@@ -133,6 +145,29 @@ An archive structure check alone does not establish successful Unity import.
 
 ## Cache and limits
 
+### Use targeted lookups and caches
+
+For a player question, use the relevant [Wiki article](sources.md#community-reference)
+to locate the likely creature, item, recipe, biome, or mechanic. Then inspect only
+the matching local code and asset data needed to verify the answer. This avoids
+reopening broad sets of bundles and avoids building a full-game database.
+
+Notice when a specific inspection is slow or likely to be repeated. Reuse the
+existing persistent, version-keyed caches for decompiled types, prefab catalogs,
+icons, and requested asset properties. Offer a narrowly scoped catalog only when
+it would help with likely future questions, explain what it contains and any
+known time/storage cost, and wait for agreement before a long batch extraction.
+Do not propose indexing every bundle or rebuilding a full-game SQLite database.
+
+During an agreed long targeted extraction, keep it low priority when possible and
+send brief progress updates at meaningful stages, roughly once a minute when the
+interface allows. Report actual phases and completed/total counts; give a
+percentage only when its denominator is known. Do not imply a phase percentage
+is overall completion or invent a remaining-time estimate. Report completion,
+partial coverage, or failure clearly.
+
+### Storage and validity
+
 Reuse inspection results across tasks and agent restarts. Store them under a
 persistent per-user data directory, not the OS temporary directory:
 
@@ -162,7 +197,9 @@ are not blindly migrated: a first request regenerates a verified persistent entr
 Never commit cached game data or include it in the
 skill ZIP. Share only the specifically requested report or permitted export.
 
-Code caches use DLL hashes, reference file stamps, tool version, and script identity.
+Targeted code caches use DLL hashes, reference file stamps, tool version, and script identity.
+Full-project code caches use the exact game version, selected assembly hashes,
+managed reference stamps, ILSpy version, and a manifest of generated-file hashes.
 Asset caches use input paths, sizes, modification times, and script identity.
 Targeted exports also include request options and local tool-file stamps. Code,
 icon, and targeted-export hits verify output SHA-256 and provenance; damaged or
