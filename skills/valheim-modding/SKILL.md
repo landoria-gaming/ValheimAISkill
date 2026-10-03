@@ -49,20 +49,25 @@ task-specific workflows below.
   Derive consistent project, assembly, plugin ID, package, and display names.
 - For an existing mod, follow its structure and inspect only the relevant code.
   A small fix does not need a new planning phase.
-- For player questions, use the [Valheim Wiki guide](references/wiki-guide.md)
-  to find a relevant page, then verify game mechanics against installed code and
-  assets. Cache only focused inspection results persistently; do not build a
-  full-game index.
+- For player questions, use installed code first when it can answer the question.
+  If you know the requested game-content data is not represented in code, go
+  directly to the [Valheim Wiki guide](references/wiki-guide.md). Inspect assets
+  only when the wiki is missing or unclear, the question is asset-specific, or
+  the user asks for verification. Cache only focused inspection results
+  persistently; do not build a full-game index.
 - Start client-side when that meets the need. Explicitly describe any server or
   other-player requirements; do not turn a local feature into a network protocol.
 
 ## Shared rules
 
-- For Valheim behavior, the installed game code is the source of truth. Interpret
-  asset values through the code that uses them, including relevant mod overrides.
-  Wikis and online examples are secondary leads, not proof. If an exact behavior
-  cannot be established despite access, label it unverified; missing game access
-  still triggers the hard prerequisite above.
+- Installed game code is authoritative for executable logic and runtime behavior;
+  interpret asset values through the code that uses them, including mod
+  overrides. For content facts not represented in code, the Valheim Wiki can be
+  the answer source: label it as wiki-sourced and do not imply it was verified
+  against the installed game. Inspect assets only when the wiki is insufficient,
+  the question is asset-specific, or the user requests a check. If a behavior
+  remains unverified, say so; missing game access still triggers the hard
+  prerequisite above.
 - Keep documents, comments, and commit messages in concise, simple English.
   Prefer useful bullets and tables.
 - Talk to the user in their language, with gamers as the audience: use a relaxed,
@@ -108,7 +113,7 @@ an evidence-backed answer; they do not require project generation or game testin
 | Task | Read |
 | --- | --- |
 | Understand game architecture, client/host/dedicated roles, networking, or save formats | [Architecture](references/architecture.md) |
-| Explain mechanics, bosses, weaknesses, or crafting recipes | Use [Gameplay advice](references/validation.md#gameplay-advice); the [Valheim Wiki guide](references/wiki-guide.md) can help find a relevant page, then verify against installed code and assets |
+| Explain mechanics, bosses, weaknesses, or crafting recipes | Use [Gameplay advice](references/validation.md#gameplay-advice); check code when it can answer, otherwise use the [Valheim Wiki guide](references/wiki-guide.md), and inspect assets only when needed |
 | Help a player who is stuck or sees a bug | [Support and diagnosis](references/validation.md#player-support-and-diagnosis); inspect game code through [Environment](references/environment.md) only when needed |
 | Explain console or mod commands, devcommands, debugmode, or admin restrictions | [Commands](references/commands.md) |
 | Inspect DLLs | [Inspection scripts](references/inspection-scripts.md#code-inspect-assemblies-and-types); use its version-keyed full decompilation cache for broad searches, then [Environment](references/environment.md) for manual inspection |

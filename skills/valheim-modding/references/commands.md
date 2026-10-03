@@ -99,8 +99,9 @@ while the player is high above the ground without warning about the fall.
    player, bad arguments, and cheat confirmation are different failures.
 3. Check syntax in the parser, not only the help description. The checked
    `ConsoleEventArgs` splits on spaces; it is not a shell-style quoted-argument
-   parser. Prefab IDs and translated names are different; resolve identifiers
-   from [game assets](assets.md), and verify numeric ranges and optional flags.
+   parser. Prefab IDs and translated names are different. Use game assets to
+   resolve an identifier or value only when relevant code and the wiki do not
+   answer it, or the user asks for asset-level verification.
 4. Explain the failed condition and give the smallest verified example. For a
    normal command, do not tell the player to enable cheats or debug mode first.
 5. Before an agreed state-changing action, explain its scope and persistence.

@@ -22,9 +22,15 @@ open a focused article rather than relying on a broad overview.
 | What should I eat? | [Food](https://valheim.fandom.com/wiki/Food) and meads | Ingredients, health/stamina/eitr values, duration, effects, and crafting source |
 
 The family names above are navigation aids, not a promise that every article is
-up to date or complete. Follow an article's internal IDs and links to identify
-the relevant game data, then verify exact behavior against the installed code
-and assets. Explain discrepancies instead of presenting wiki values as proven.
+up to date or complete. Use installed code first when the requested fact concerns
+executable rules or runtime behavior. When a content fact is known not to be
+represented in code, go directly to the relevant wiki page. If the wiki answers
+the question, give that answer and identify the wiki as its source; do not imply
+it was verified against code or assets. Inspect assets only when the wiki is
+missing, ambiguous, or conflicts with another source, when the question is
+specifically about an asset, or when the user asks for a recheck. Explain any
+known discrepancies and check the article's date or game-version context when
+available.
 
 ## Search and session cache
 

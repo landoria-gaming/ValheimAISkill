@@ -40,10 +40,12 @@ Help with boss fights, enemy weaknesses, equipment, crafting, and other Valheim
 mechanics without requiring a mod project. Establish the boss or situation and
 relevant game version, difficulty, and mods when these affect the advice.
 
-- Inspect the relevant damage, resistance,
-  status-effect, attack, and AI logic. Trace the boss-specific values as well:
-  DLL code may define a system while prefab or asset data supplies its settings.
-  Follow [asset inspection](assets.md) for those values.
+- First identify where the requested fact is likely stored. Inspect installed
+  code for executable rules such as damage calculation, resistance handling,
+  status effects, attack selection, or AI behavior. If the question is about
+  content values that code does not contain, such as a listed recipe or item
+  stat, go directly to the relevant wiki page instead of performing an
+  unnecessary asset inspection.
 - Consider overrides from mods, difficulty, and active effects. Do not infer a
   boss's actual weakness from an enum, a default value, or a generic damage class.
 - If a particular value cannot be established after inspecting an accessible game,
@@ -53,12 +55,15 @@ relevant game version, difficulty, and mods when these affect the advice.
 - Turn verified mechanics into practical tips: useful damage types, attacks to
   avoid, safe openings, and preparation. Separate confirmed facts from tactical
   suggestions; respect the player's progression and requested spoiler level.
-- For crafting questions, verify ingredients, quantities per batch, output count,
-  station and station level, discovery/unlock conditions, and upgrade costs where
-  relevant. Distinguish a crafting recipe from a smelter or other conversion rule;
-  explain intermediate processing and fuel separately. Read recipe/prefab data
-  and mod overrides, not only the generic crafting code. Show a short ingredient
-  table and the necessary steps; do not require a project or technical vocabulary.
+- For crafting questions, use the wiki for ingredients, quantities per batch,
+  output count, station and station level, discovery/unlock conditions, and
+  upgrade costs when these values are not encoded in relevant code. Distinguish
+  a crafting recipe from a smelter or other conversion rule; explain intermediate
+  processing and fuel separately. Inspect recipe/prefab data or mod overrides
+  only if the wiki is missing or unclear, the user requests a recheck, or the
+  question specifically concerns the asset. Attribute wiki-based facts to the
+  wiki; do not present them as code-verified. Show a short ingredient table and
+  the necessary steps; do not require a project or technical vocabulary.
 
 This is an explanation-only path: the accessible game installation is required,
 but BepInEx, a mod project, a build, and save modifications are not.

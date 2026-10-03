@@ -147,9 +147,11 @@ An archive structure check alone does not establish successful Unity import.
 
 ### Use targeted lookups and caches
 
-For a player question, use the relevant [Wiki article](sources.md#community-reference)
-to locate the likely creature, item, recipe, biome, or mechanic. Then inspect only
-the matching local code and asset data needed to verify the answer. This avoids
+For a player question, inspect local code first when it is likely to contain the
+answer, especially for executable rules and runtime behavior. If known content
+data is not represented in code, use the relevant [Wiki article](sources.md#community-reference)
+directly. Inspect matching asset data only when the wiki is insufficient, the
+question is asset-specific, or the user requests verification. This avoids
 reopening broad sets of bundles and avoids building a full-game database.
 
 Notice when a specific inspection is slow or likely to be repeated. Reuse the

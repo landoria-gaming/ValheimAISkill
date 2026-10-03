@@ -59,9 +59,11 @@ is a community reference for AssetRipper exports, editor setup, and shader
 limitations. Read the version-matching section critically; the page also contains
 old workflows. See [asset inspection](assets.md#unity-project-reference) for scope.
 
-Use the [Valheim Wiki guide](wiki-guide.md) for page families, discovery, and
-session-only HTML caching. The wiki is a secondary lead; verify game behavior
-against installed code and assets.
+Use the [Valheim Wiki guide](wiki-guide.md) for page discovery, wiki-sourced
+answers to content questions not represented in code, and session-only HTML
+caching. Use installed code for executable rules and runtime behavior. Inspect
+assets only when the wiki is insufficient, the question is asset-specific, or
+the user requests verification.
 
 [Valheim - Topic on YouTube](https://www.youtube.com/channel/UCaIQQvS5S-dLgf8XbX1Prkg)
 is an additional user-supplied media reference. Its feed identifies it as a Topic

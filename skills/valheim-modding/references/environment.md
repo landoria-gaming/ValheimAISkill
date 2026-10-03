@@ -151,9 +151,11 @@ and BepInEx 5.4.23.5. These are snapshots, not claims about the latest release.
 
 ## Inspect game assets
 
-When DLLs explain the rule but not its values, use [Assets](assets.md) to inspect
-prefabs, recipes, translations, or images with AssetRipper. Keep code and asset
-findings tied to the same installed game version.
+When DLLs explain runtime rules but not requested content values, prefer the
+[Valheim Wiki](wiki-guide.md) if it covers them. Use [Assets](assets.md) to inspect
+prefabs, recipes, translations, or images when the wiki is missing or unclear,
+the question is asset-specific, or the user asks for a recheck. Keep code and
+asset findings tied to the same installed game version.
 
 ## Generate a project
 
