@@ -47,10 +47,10 @@ class MetadataTests(unittest.TestCase):
     def test_null_icon_pointer_stays_absent(self):
         self.assertIsNone(asset_index.pointer_target(None, {"m_FileID": 0, "m_PathID": 0}))
 
-    def test_game_root_data_and_mac_layouts(self):
+    def test_game_client_server_data_and_mac_layouts(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            for layout in ("valheim_Data", "Valheim.app/Contents/Resources/Data"):
+            for layout in ("valheim_Data", "valheim_server_Data", "Valheim.app/Contents/Resources/Data"):
                 game = root / layout.split("/")[0].replace(".", "-")
                 data = game / layout
                 (data / "Managed").mkdir(parents=True)

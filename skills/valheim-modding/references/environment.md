@@ -99,6 +99,11 @@ Do not require a persistent environment variable or source checkout. Adapt the
 DLL path for the actual platform and never commit or distribute game DLLs or
 decompiled source. A plausible method name is not verification.
 
+For dedicated-server questions, start with matching-version client DLLs for shared
+gameplay logic. See [shared code and build differences](architecture.md#shared-client-and-server-code)
+before assuming a client-specific implementation also describes the server.
+The inspection helpers also accept a server root with `valheim_server_Data`.
+
 Local API baseline checked on 2026-10-03: Valheim 1.0.16, Unity 6000.0.75f1,
 and BepInEx 5.4.23.5. These are snapshots, not claims about the latest release.
 

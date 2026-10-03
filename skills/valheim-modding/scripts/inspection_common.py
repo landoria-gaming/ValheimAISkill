@@ -40,13 +40,13 @@ def save_json(path, data):
 
 
 def game_data(game):
-    """Accept a game root, data folder, or macOS app bundle; do not scan home folders."""
+    """Accept a client/server root, data folder, or macOS app; do not scan home folders."""
     supplied = game or os.environ.get("VALHEIM_PATH")
     if not supplied:
         raise ValueError("Pass --game or set VALHEIM_PATH to the local game installation")
     root = Path(supplied).expanduser().resolve()
-    candidates = [root, root / "valheim_Data", root / "Contents/Resources/Data",
-                  root / "Valheim.app/Contents/Resources/Data"]
+    candidates = [root, root / "valheim_Data", root / "valheim_server_Data",
+                  root / "Contents/Resources/Data", root / "Valheim.app/Contents/Resources/Data"]
     matches = [p for p in candidates if (p / "Managed/assembly_valheim.dll").is_file()]
     if len(matches) != 1:
         raise ValueError("Valheim is missing or inaccessible. Only installation/directory-access help is allowed; pass the actual game path")

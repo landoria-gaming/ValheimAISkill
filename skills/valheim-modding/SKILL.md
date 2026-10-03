@@ -1,6 +1,6 @@
 ---
 name: valheim-modding
-description: "Create and debug Valheim BepInEx mods, package for Thunderstore, set up dedicated Linux servers, and help players with bugs, commands, bosses, or crafting recipes using game code and data. Not for other games or unrelated C# work."
+description: "Create and debug Valheim BepInEx mods, package for Thunderstore, configure and maintain Windows or Linux dedicated servers, and help players with bugs, commands, bosses, or crafting recipes using game code and data. Not for other games or unrelated C# work."
 ---
 
 # Valheim BepInEx Modding
@@ -11,9 +11,10 @@ project. This skill works without private Landoria repositories.
 
 ## Hard prerequisite: an accessible Valheim installation
 
-Before any Valheim task, locate the user's installed game and verify read access
-to its actual game directory, managed DLLs, and asset files. Accept the real path
-on Windows, Linux, or macOS; do not assume the Steam default or require write access.
+Before any Valheim task, locate the user's installed game (client or dedicated
+server) and verify read access to its actual directory, managed DLLs, and asset
+files. Accept the real path on Windows, Linux, or macOS; do not assume the Steam
+default or require write access.
 
 **If Valheim is not installed, or the agent cannot read its game directory, stop.**
 The only permitted help is installing a legitimate copy of Valheim and helping the
@@ -84,6 +85,7 @@ an evidence-backed answer; they do not require project generation or game testin
 
 | Task | Read |
 | --- | --- |
+| Understand game architecture, client/host/dedicated roles, networking, or save formats | [Architecture](references/architecture.md) |
 | Explain mechanics, bosses, weaknesses, or crafting recipes | [Gameplay advice](references/validation.md#gameplay-advice); verify relevant installed code and game data |
 | Help a player who is stuck or sees a bug | [Support and diagnosis](references/validation.md#player-support-and-diagnosis); inspect game code through [Environment](references/environment.md) only when needed |
 | Explain why a console or mod command fails | [Command troubleshooting](references/validation.md#command-troubleshooting) |
@@ -94,7 +96,7 @@ an evidence-backed answer; they do not require project generation or game testin
 | C# implementation, events, patches, config, native UI | [Development](references/development.md) |
 | Build, deploy locally, or test a mod | [Validation](references/validation.md) |
 | Release metadata, icon, ZIP, publishing | [Packaging](references/packaging.md) |
-| Set up or administer a dedicated Linux server | [Servers](references/servers.md): Podman or native SteamCMD, SSH, multiplayer limits |
+| Configure, maintain, or troubleshoot a Windows or Linux dedicated server | [Servers](references/servers.md): native installation or Linux containers, backups, updates, access |
 | Downloads, documentation, public mod examples | [Sources](references/sources.md) |
 
 End with a short answer or change summary. Distinguish observed results from

@@ -1,18 +1,34 @@
 # Dedicated Servers
 
-Use this reference only for server or multiplayer work.
+Help install, configure, maintain, update, back up, and troubleshoot dedicated
+servers on Windows or Linux. Preserve an existing deployment unless the user
+asks to migrate it. Read [Architecture](architecture.md) for shared client/server
+code, runtime-role detection, networking, and save formats.
 
-- Start from [Landoria's server image](https://github.com/landoria-gaming/valheim-server-image).
+- For a Linux container deployment, start from
+  [Landoria's server image](https://github.com/landoria-gaming/valheim-server-image).
   Read its current documentation before choosing image tags, ports, volumes, or commands.
 - Prefer Podman to pull and run the OCI image on Linux. It is open source and
   accepts the same container image format. Use Docker when the user selects it
   or the host environment makes it the better-supported option.
 - Confirm game version, BepInEx version, deployed plugins, service/container name,
   and where logs and persistent world data live.
-- Back up world data before risky migrations or gameplay changes.
-- A dedicated server has no local player UI; do not call client chat or popup APIs there.
 - Decide which features run on the client, server, or both. Test each role and
   document required matching versions.
+
+## Native Windows installation
+
+- Install **Valheim Dedicated Server** from Steam Library's **Tools** category,
+  or use Windows SteamCMD with dedicated-server app ID `896660` after checking
+  the current guide. Do not install Linux binaries on a native Windows host.
+- Copy `start_headless_server.bat` before customizing it. Keep launch settings,
+  world data, plugins, and logs separate from Steam-managed files where possible.
+  Apply the skill's secret-handling rules to credentials; do not commit them.
+- Check the console/startup log and add only the necessary firewall rules for
+  the selected backend. Do not disable the firewall to fix a connection failure.
+- For unattended startup, agree on Task Scheduler or an appropriate service
+  wrapper and a non-administrator account. The game console executable is not
+  itself a Windows service; the chosen runner must support graceful shutdown.
 
 ## Native Linux installation
 
@@ -35,8 +51,8 @@ steamcmd \
 - Install the Linux runtime libraries listed by the current official Valheim
   dedicated-server guide.
 - Use a `systemd` service for startup, graceful shutdown, and restart policy.
-- Stop the server cleanly and back up persistent world data before an update.
-- After updating, confirm the game and BepInEx versions, then inspect startup logs.
+
+Use the shared [maintenance checklist](#routine-maintenance) for updates on either OS.
 
 ## Official server guide
 
@@ -72,9 +88,15 @@ in the user's profile or an agent-specific key the user chooses to provision.
 - Restart the identified service/container only when authorized.
   Warn about interrupting active players.
 
-## Security expectations
+## Routine maintenance
 
-Valheim relies heavily on client authority. A server-side mod or matching-mod check
-can coordinate cooperative clients, but it cannot make modified clients trustworthy
-or guarantee anti-cheat protection. State the limits without using them as a reason
-to ignore input validation, ownership checks, or safe server administration.
+- Check process/service status, startup errors, game/BepInEx/plugin versions,
+  free disk space, and backup health before changing the installation.
+- Agree on downtime, warn connected players, stop gracefully, verify a complete
+  backup, update, and check startup logs and a real player connection afterwards.
+- Follow the [save-format and backup guidance](architecture.md#saves-and-storage).
+  Do not assume copying only `.db` and `.fwl` covers newer chunked saves.
+- Keep a recovery copy and test restoration in an isolated location. Do not
+  replace a world, remove plugins, or restart an occupied server without agreement.
+- Explain [multiplayer authority limits](architecture.md#authority-and-mod-compatibility)
+  when proposing server-side enforcement or matching-mod checks.

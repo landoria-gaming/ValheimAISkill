@@ -88,7 +88,9 @@ For native confirmation UI, inspect `UnifiedPopup`, `YesNoPopup`,
 
 ## Scope and compatibility
 
-For multiplayer authority and security limits, read [Servers](servers.md).
+For client, dedicated-server, hosted multiplayer, and single-player detection,
+read [Runtime roles](architecture.md#runtime-roles). The same reference explains
+RPCs and object ownership; server administration belongs in [Servers](servers.md).
 
 Avoid extra frameworks, broad patches, reflection, and defensive scaffolding
 without a concrete need. Use logs and narrowly scoped changes to solve real issues.

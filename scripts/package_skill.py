@@ -19,7 +19,7 @@ FILES = (
     "references/environment.md", "references/development.md",
     "references/validation.md", "references/unity.md", "references/assets.md",
     "references/packaging.md", "references/servers.md", "references/sources.md",
-    "references/inspection-scripts.md",
+    "references/inspection-scripts.md", "references/architecture.md",
     "assets/readme-template.md",
     "scripts/inspection_common.py", "scripts/inspect_code.py",
     "scripts/asset_ripper.py", "scripts/asset_index.py", "scripts/inspect_assets.py",

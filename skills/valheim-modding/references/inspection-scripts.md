@@ -16,8 +16,9 @@ including commands that could otherwise use cached data or an explicit DLL.
   [UnityPy](https://github.com/K0lb3/UnityPy) dependency in an agent-owned temporary
   Python environment: `python -m pip install -r scripts/requirements-assets.txt`.
   ILSpy remains the decompiler; AssetRipper decodes the exported image pixels.
-- Pass `--game "/path/to/Valheim"` or set `VALHEIM_PATH`. A data folder or macOS
-  app bundle is also accepted. Pass `--assembly` for a DLL outside the usual layout.
+- Pass `--game "/path/to/Valheim"` or set `VALHEIM_PATH`. Client roots
+  (`valheim_Data`), dedicated-server roots (`valheim_server_Data`), a data folder,
+  or a macOS app bundle are accepted. Pass `--assembly` for a DLL outside the usual layout.
 
 Checked versions: ILSpyCMD 10.1.0.8386, AssetRipper 2.0.0 Free, UnityPy 1.25.2.
 Tool changes may require adapting these scripts; these are not necessarily the
