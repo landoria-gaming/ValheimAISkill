@@ -22,7 +22,7 @@ the installed code remains authoritative under the shared source-of-truth rule.
 | [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) | Command-line installation and updates for a native Linux server |
 | [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) | Loader ZIP and installation |
 | [BepInEx docs](https://docs.bepinex.dev/) | Select the BepInEx 5 documentation, not an unrelated loader generation |
-| [r2modman](https://thunderstore.io/package/ebkr/r2modman/) / [releases](https://github.com/ebkr/r2modmanPlus/releases) | Development profiles and downloads |
+| [r2modman](https://thunderstore.io/package/ebkr/r2modman/) / [source code](https://github.com/ebkr/r2modmanPlus/) / [releases](https://github.com/ebkr/r2modmanPlus/releases) | Profiles, downloads, and implementation of mod installation and game launching; inspect the matching release |
 | [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) | Cross-platform build tools |
 | [VS Code](https://code.visualstudio.com/download) / [JetBrains Rider](https://www.jetbrains.com/rider/download/) | Editors |
 | [Git](https://git-scm.com/downloads) | Version control and Git Bash |
@@ -51,6 +51,11 @@ community implementations and examples, **not a trusted or authoritative source*
 Review the code critically: check the game version, assumptions, dependencies,
 licensing, and possible bugs before reusing an approach. Do not copy a pattern or
 add a framework just because one of these projects uses it.
+
+[Valheim Unity Project Guide](https://github.com/Valheim-Modding/Wiki/wiki/Valheim-Unity-Project-Guide)
+is a community reference for AssetRipper exports, editor setup, and shader
+limitations. Read the version-matching section critically; the page also contains
+old workflows. See [asset inspection](assets.md#unity-project-reference) for scope.
 
 [Valheim Wiki](https://valheim.fandom.com/wiki/Valheim_Wiki) is a secondary starting
 point for item names, crafting, enemies, and player questions. It may be incomplete

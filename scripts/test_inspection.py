@@ -2,12 +2,15 @@
 """Exercise inspection helpers with synthetic data; no game installation required."""
 
 import io
+import copy
+from contextlib import nullcontext
 import json
 from pathlib import Path
 import struct
 import sys
 import tempfile
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "skills/valheim-modding/scripts"
@@ -17,6 +20,9 @@ import asset_index
 import asset_ripper
 import inspect_assets
 import inspect_code
+import export_model
+import export_prefab_catalog
+import inspection_common
 from inspection_common import game_data
 from PIL import Image
 
@@ -146,6 +152,13 @@ class SpriteTests(unittest.TestCase):
 
 
 class CodeCacheTests(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        env = patch.dict(inspection_common.os.environ, {"VALHEIM_SKILL_CACHE": tmp.name})
+        env.start()
+        self.addCleanup(env.stop)
+
     def test_cached_type_and_changed_dll(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -159,6 +172,11 @@ class CodeCacheTests(unittest.TestCase):
                 self.assertTrue(hit)
                 self.assertEqual(first, repeat)
                 self.assertEqual(sum(args[0][1] != ["--version"] for args in call.call_args_list), 1)
+                self.assertEqual(first.parent.parent.name, "code")
+                first.write_text("damaged", encoding="utf-8")
+                repaired, hit = inspect_code.inspect(dll, "type", "Sample")
+                self.assertFalse(hit)
+                self.assertEqual(repaired.read_text(), "class Sample {}")
                 dll.write_bytes(b"synthetic-v2")
                 changed, hit = inspect_code.inspect(dll, "type", "Sample")
                 self.assertFalse(hit)
@@ -173,6 +191,247 @@ class CodeCacheTests(unittest.TestCase):
                 inspect_code.inspect(dll, "types")
             kinds = [c.args[1][1] for c in call.call_args_list if c.args[1][0] == "-l"]
             self.assertEqual(set(kinds), set("cised"))
+
+
+class AssetExportCacheTests(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        env = patch.dict(inspection_common.os.environ, {"VALHEIM_SKILL_CACHE": str(self.root / "cache")})
+        env.start()
+        self.addCleanup(env.stop)
+        self.source = self.root / "bundle"
+        self.source.write_bytes(b"source")
+        self.tool = self.root / "AssetRipper"
+        self.tool.write_bytes(b"tool v1")
+        for name, value in (("session", nullcontext("http://localhost:1")), ("load", None),
+                            ("search", [{"class": "GameObject", "name": "Wood", "locator": {"D": -9007199254740993}}]),
+                            ("export", b'{"m_Name":"Wood"}')):
+            mock = patch.object(asset_ripper, name, return_value=value)
+            setattr(self, name, mock.start())
+            self.addCleanup(mock.stop)
+
+    def run_export(self, **kwargs):
+        return inspect_assets.export_asset([self.source], "Wood", tool=str(self.tool), **kwargs)
+
+    def test_json_hit_does_not_start_load_or_search(self):
+        first = self.run_export()
+        repeat = self.run_export()
+        self.assertFalse(first["cache_hit"])
+        self.assertTrue(repeat["cache_hit"])
+        self.assertEqual(first["path"], repeat["path"])
+        self.assertEqual(repeat["asset"]["path_id"], -9007199254740993)
+        for call in (self.session, self.load, self.search, self.export):
+            self.assertEqual(call.call_count, 1)
+
+    def test_changed_inputs_options_tool_and_corruption_miss(self):
+        first = self.run_export()
+        Path(first["path"]).write_bytes(b"broken")
+        self.assertFalse(self.run_export()["cache_hit"])
+        self.source.write_bytes(b"new source")
+        changed = self.run_export()
+        self.assertNotEqual(first["path"], changed["path"])
+        self.tool.write_bytes(b"new tool build")
+        changed_tool = self.run_export()
+        self.assertNotEqual(changed["path"], changed_tool["path"])
+        self.assertNotEqual(changed_tool["path"], self.run_export(path_id=-9007199254740993)["path"])
+
+    def test_external_service_does_not_reuse_unverified_cache(self):
+        for _ in range(2):
+            result = inspect_assets.export_asset([self.source], "Wood", base="http://localhost:1")
+            self.assertFalse(result["cache_hit"])
+        self.assertEqual(self.load.call_count, 2)
+
+    def test_resource_stream_change_invalidates(self):
+        resource = self.root / "bundle.resS"
+        resource.write_bytes(b"texture v1")
+        first = self.run_export()
+        resource.write_bytes(b"texture changed")
+        second = self.run_export()
+        self.assertFalse(second["cache_hit"])
+        self.assertNotEqual(first["path"], second["path"])
+
+    def test_ambiguous_query_is_not_cached(self):
+        self.search.return_value *= 2
+        with self.assertRaisesRegex(ValueError, "found 2"):
+            self.run_export()
+        self.assertFalse(list((self.root / "cache").rglob("provenance.json")))
+
+    def test_inventory_icon_persistent_hit_and_damage(self):
+        payload, sprite = SpriteTests().fixture()
+        self.export.return_value = payload
+        self.search.return_value = [{"class": "Sprite", "name": "Wood", "locator": {"D": 123}}]
+        row = {"path": "Wood.prefab", "root_name": "Wood", "english_names": ["Wood"],
+               "icons": [{"collection": "CAB-test", "path_id": 123}]}
+        with patch.object(inspect_assets, "prefab_info", return_value=(row, self.source)), \
+             patch.object(inspect_assets, "find_collection_bundle", return_value=self.source), \
+             patch.object(asset_ripper, "asset_json", return_value=sprite):
+            first = inspect_assets.inventory_icon(self.root, "Wood", tool=str(self.tool))
+            self.assertFalse(first["cache_hit"])
+            self.assertTrue(inspect_assets.inventory_icon(self.root, "Wood", tool=str(self.tool))["cache_hit"])
+            self.assertEqual(self.load.call_count, 1)
+            self.assertEqual(Path(first["path"]).parent.parent.name, "images")
+            Path(first["path"]).write_bytes(b"broken PNG")
+            self.assertFalse(inspect_assets.inventory_icon(self.root, "Wood", tool=str(self.tool))["cache_hit"])
+            self.assertEqual(self.load.call_count, 2)
+
+
+class PersistentCacheTests(unittest.TestCase):
+    def test_windows_default_ignores_app_sandbox(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.dict(inspection_common.os.environ, {"LOCALAPPDATA": "redirected-app-cache"}, clear=True), \
+                 patch.object(inspection_common.sys, "platform", "win32"), \
+                 patch.object(inspection_common.Path, "home", return_value=Path(tmp)):
+                self.assertEqual(inspection_common.persistent_cache_root(), (Path(tmp) / ".cache/valheim-modding").resolve())
+
+    def test_bulk_catalog_resume_and_changed_bundle(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "Bundles").mkdir()
+            bundle = root / "Bundles/fixture"
+            bundle.write_bytes(b"v1")
+            manifest = root / "manifest"
+            manifest.write_text("fixture")
+            rows = {("fixture", "a.prefab"): {"bundle": "fixture", "path": "a.prefab"}}
+            with patch.dict(inspection_common.os.environ, {"VALHEIM_SKILL_CACHE": str(root / "cache")}):
+                cache, identity = export_prefab_catalog.catalog_cache(manifest, rows)
+                inspection_common.save_json(cache, {"input_fingerprint": identity, "completed": ["fixture"], "rows": list(rows.values())})
+                with patch.object(export_prefab_catalog, "request") as request:
+                    result, count = export_prefab_catalog.inspect_bundles("http://localhost:1", rows, root / "Bundles", cache, identity)
+                    request.assert_not_called()
+                    self.assertEqual(count, 1)
+                    self.assertEqual(result, list(rows.values()))
+                bundle.write_bytes(b"v2 changed")
+                changed, revision = export_prefab_catalog.catalog_cache(manifest, rows)
+                self.assertNotEqual(cache, changed)
+                with self.assertRaisesRegex(ValueError, "other inputs"):
+                    export_prefab_catalog.inspect_bundles("http://localhost:1", rows, root / "Bundles", cache, revision)
+
+    def test_asset_index_reused_and_invalidated(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            bundles = root / "bundles"
+            bundles.mkdir()
+            source = bundles / "fixture"
+            source.write_bytes(b"v1")
+            with patch.dict(inspection_common.os.environ, {"VALHEIM_SKILL_CACHE": str(root / "cache")}), \
+                 patch.object(asset_index, "bundle_members", return_value=["CAB-test"]) as scan:
+                asset_index.find_collection_bundle(bundles, "CAB-test")
+                asset_index.find_collection_bundle(bundles, "CAB-test")
+                self.assertEqual(scan.call_count, 1)
+                self.assertEqual(len(list((root / "cache/indexes").glob("*/collections.json"))), 1)
+                source.write_bytes(b"v2 changed")
+                asset_index.find_collection_bundle(bundles, "CAB-test")
+                self.assertEqual(scan.call_count, 2)
+
+    def test_cache_override_outside_repository(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            with patch.dict(inspection_common.os.environ, {"VALHEIM_SKILL_CACHE": str(root / "cache")}):
+                with self.assertRaisesRegex(ValueError, "outside Git"):
+                    inspection_common.persistent_cache_root()
+            with patch.dict(inspection_common.os.environ, {"VALHEIM_SKILL_CACHE": "relative/cache"}):
+                with self.assertRaisesRegex(ValueError, "absolute"):
+                    inspection_common.persistent_cache_root()
+
+    def test_unspecified_work_cache_remains_temporary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch.dict(inspection_common.os.environ, {"VALHEIM_SKILL_CACHE": str(root / "persistent")}), \
+                 patch.object(inspection_common.tempfile, "gettempdir", return_value=str(root / "temp")):
+                path = inspection_common.cache_dir(["fixture"])
+                self.assertTrue(path.is_relative_to(root / "temp"))
+                self.assertFalse((root / "persistent").exists())
+
+
+class StaticModelTests(unittest.TestCase):
+    @staticmethod
+    def pointer(number, file_id=0):
+        return {"m_FileID": file_id, "m_PathID": number}
+
+    def fixture(self):
+        ptr = self.pointer
+        def obj(number, kind, tree):
+            return SimpleNamespace(path_id=number, type=SimpleNamespace(name=kind),
+                                   read_typetree=lambda: copy.deepcopy(tree))
+        objects = {
+            1: obj(1, "GameObject", {"m_Name": "Fixture", "m_IsActive": True, "m_Layer": 9, "m_Tag": 2,
+                "m_Component": [{"component": ptr(i)} for i in (2, 3, 4, 5)]}),
+            2: obj(2, "Transform", {"m_GameObject": ptr(1), "m_Children": [], "m_Father": ptr(0),
+                "m_LocalPosition": {"x": 0, "y": 50, "z": 0}}),
+            3: obj(3, "MeshFilter", {"m_GameObject": ptr(1), "m_Mesh": ptr(10)}),
+            4: obj(4, "MeshRenderer", {"m_GameObject": ptr(1), "m_Materials": [ptr(20)]}),
+            5: obj(5, "MonoBehaviour", {"m_Script": ptr(900)}),
+            10: obj(10, "Mesh", {"m_Name": "Mesh"}),
+            20: obj(20, "Material", {"m_Name": "Mat", "m_Shader": ptr(800), "m_SavedProperties": {
+                "m_TexEnvs": [("_MainTex", {"m_Texture": ptr(30)}), ("_NoiseTex", {"m_Texture": ptr(700)})]}}),
+            30: obj(30, "Texture2D", {"m_Name": "Base"}),
+        }
+        return export_model.StaticSelection(SimpleNamespace(objects=objects)), objects[1]
+
+    def test_visual_dependency_closure_excludes_gameplay(self):
+        selection, root = self.fixture()
+        selection.hierarchy(root)
+        selection.dependencies()
+        self.assertEqual(set(selection.selected), {1, 2, 3, 4, 10, 20, 30})
+        self.assertEqual(selection.excluded, {"MonoBehaviour": 1})
+        self.assertEqual(selection.trees[2]["m_LocalPosition"]["y"], 0)
+        self.assertTrue(selection.trees[1]["m_IsActive"])
+        self.assertEqual(selection.trees[20]["m_Shader"], self.pointer(0))
+        self.assertEqual(selection.omitted_maps, {"_NoiseTex"})
+
+    def test_skinned_export_rejected_instead_of_silent_loss(self):
+        selection, root = self.fixture()
+        selection.collection.objects[5].type.name = "SkinnedMeshRenderer"
+        with self.assertRaisesRegex(ValueError, "not supported yet"):
+            selection.hierarchy(root)
+
+    def test_missing_and_external_dependencies_fail(self):
+        selection, root = self.fixture()
+        selection.hierarchy(root)
+        del selection.collection.objects[10]
+        with self.assertRaisesRegex(ValueError, "Missing model dependency"):
+            selection.dependencies()
+        with self.assertRaisesRegex(ValueError, "External model dependency"):
+            selection.resolve(self.pointer(10, 1))
+
+    def test_refuses_existing_output_and_game_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data = root / "game/valheim_Data"
+            data.mkdir(parents=True)
+            with self.assertRaisesRegex(ValueError, "outside the game"):
+                export_model.prepare_output(data / "export", data)
+            existing = root / "existing"
+            existing.mkdir()
+            with self.assertRaises(FileExistsError):
+                export_model.prepare_output(existing, data)
+
+    def test_unitypackage_members_and_broken_guid(self):
+        import tarfile
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            assets = root / "Assets/Test"
+            assets.mkdir(parents=True)
+            asset = assets / "Test.asset"
+            asset.write_bytes(b"%YAML 1.1\nfixture: true\n")
+            guid = "123456789abcdef0123456789abcdef0"
+            Path(str(asset) + ".meta").write_text(f"fileFormatVersion: 2\nguid: {guid}\n")
+            package = root / "model.unitypackage"
+            self.assertEqual(export_model.package_assets(root, package), 1)
+            # A .unitypackage filename in the gzip header produces an empty
+            # import in Unity 6.5; match Unity's embedded tar filename.
+            self.assertEqual(package.read_bytes()[10:].split(b"\0", 1)[0], b"archtemp.tar")
+            with tarfile.open(package) as archive:
+                self.assertTrue({guid, *(f"{guid}/{n}" for n in ("asset", "asset.meta", "pathname"))}.issubset(archive.getnames()))
+                self.assertEqual(archive.extractfile(f"{guid}/pathname").read(), b"Assets/Test/Test.asset")
+                folder = next(m for m in archive if m.name.endswith("/asset.meta") and b"folderAsset: yes" in archive.extractfile(m).read())
+                self.assertEqual(archive.extractfile(folder.name.replace("asset.meta", "pathname")).read(), b"Assets/Test")
+            asset.write_bytes(b"%YAML 1.1\nreference: {guid: ffffffffffffffffffffffffffffffff}\n")
+            with self.assertRaisesRegex(ValueError, "Unresolved"):
+                export_model.package_assets(root, root / "bad.unitypackage")
 
 
 if __name__ == "__main__":

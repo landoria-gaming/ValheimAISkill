@@ -1,6 +1,6 @@
 ---
 name: valheim-modding
-description: "Create and debug Valheim BepInEx mods, package for Thunderstore, configure and maintain Windows or Linux dedicated servers, and help players with bugs, commands, bosses, or crafting recipes using game code and data. Not for other games or unrelated C# work."
+description: "Create and debug Valheim BepInEx mods, launch modded clients, package for Thunderstore, configure and maintain Windows or Linux dedicated servers, and help players with bugs, commands, bosses, or crafting recipes using game code and data. Not for other games or unrelated C# work."
 ---
 
 # Valheim BepInEx Modding
@@ -77,6 +77,10 @@ task-specific workflows below.
   Explain necessary file access and data collection before installation.
 - Preserve the user's tools, scope, and permissions. Creating a mod does not
   authorize publishing it, pushing Git commits, or restarting a remote server.
+- Never stop, kill, or restart the Valheim client or a dedicated server unless
+  the user explicitly requests that action. A build, locked DLL, bug report, or
+  test does not grant permission. If a restart is needed, explain why and wait;
+  prefer graceful shutdown and protect unsaved progress when it is authorized.
 
 ## Choose the task path
 
@@ -88,13 +92,15 @@ an evidence-backed answer; they do not require project generation or game testin
 | Understand game architecture, client/host/dedicated roles, networking, or save formats | [Architecture](references/architecture.md) |
 | Explain mechanics, bosses, weaknesses, or crafting recipes | [Gameplay advice](references/validation.md#gameplay-advice); verify relevant installed code and game data |
 | Help a player who is stuck or sees a bug | [Support and diagnosis](references/validation.md#player-support-and-diagnosis); inspect game code through [Environment](references/environment.md) only when needed |
-| Explain why a console or mod command fails | [Command troubleshooting](references/validation.md#command-troubleshooting) |
+| Explain console or mod commands, devcommands, debugmode, or admin restrictions | [Commands](references/commands.md) |
 | Inspect DLLs | [Inspection scripts](references/inspection-scripts.md#code-inspect-assemblies-and-types), then [Environment](references/environment.md) for manual inspection |
 | Inspect or extract prefabs, recipes, translations, or images | [Inspection scripts](references/inspection-scripts.md#assets-search-inspect-and-extract), then [Assets](references/assets.md) for unsupported cases |
+| Export a static model for Unity Editor | [Model export](references/inspection-scripts.md#static-models-for-unity-editor); not yet for skinned or animated characters |
 | Create a mod or change its setup | [Environment](references/environment.md), then [Development](references/development.md) and [Validation](references/validation.md) for implementation |
 | Unity objects, components, lifecycle, timing, physics, rendering | [Unity API](references/unity.md) |
 | C# implementation, events, patches, config, native UI | [Development](references/development.md) |
 | Build, deploy locally, or test a mod | [Validation](references/validation.md) |
+| Launch Valheim using the selected modded profile by default | [Launching](references/launching.md): r2modman Start modded, Steam or Xbox/Game Pass |
 | Release metadata, icon, ZIP, publishing | [Packaging](references/packaging.md) |
 | Configure, maintain, or troubleshoot a Windows or Linux dedicated server | [Servers](references/servers.md): native installation or Linux containers, backups, updates, access |
 | Downloads, documentation, public mod examples | [Sources](references/sources.md) |

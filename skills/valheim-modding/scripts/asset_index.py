@@ -97,7 +97,7 @@ def name_tokens(collection, values):
 def bundle_facts(bundle_path):
     """Cache factual prefab metadata; no game assets or translations enter the skill."""
     api = unitypy()
-    folder = cache_dir([digest(__file__), api.__version__, stamp(bundle_path)])
+    folder = cache_dir([digest(__file__), api.__version__, stamp(bundle_path)], persistent=True)
     cached = folder / "prefabs.json"
     if cached.exists():
         return json.loads(cached.read_text(encoding="utf-8"))
@@ -182,7 +182,7 @@ def localization_order(obj):
 
 def english_translations(resources):
     api = unitypy()
-    folder = cache_dir([digest(__file__), api.__version__, stamp(resources)])
+    folder = cache_dir([digest(__file__), api.__version__, stamp(resources)], persistent=True)
     cached = folder / "english.json"
     if cached.exists():
         return json.loads(cached.read_text(encoding="utf-8"))
@@ -264,7 +264,7 @@ def bundle_members(path):
 
 def find_collection_bundle(directory, collection):
     files = sorted(p for p in Path(directory).iterdir() if p.is_file())
-    folder = cache_dir([digest(__file__), [stamp(p) for p in files]])
+    folder = cache_dir([digest(__file__), [stamp(p) for p in files]], persistent=True)
     cached = folder / "collections.json"
     if cached.exists():
         index = json.loads(cached.read_text(encoding="utf-8"))

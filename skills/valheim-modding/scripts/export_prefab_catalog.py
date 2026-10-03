@@ -13,7 +13,7 @@ from urllib.parse import parse_qs, urlencode, urlsplit
 from urllib.request import Request, urlopen
 
 from asset_index import bundle_facts, english_translations, localize_name
-from inspection_common import game_data
+from inspection_common import cache_dir, digest, game_data, save_json, stamp
 
 
 def request(base, endpoint, data=None):
@@ -82,8 +82,8 @@ def inspect_bundles(base, manifest, bundles_dir, cache_path, fingerprint):
     rows = {}
     if cache_path.exists():
         saved = json.loads(cache_path.read_text())
-        if saved.get("manifest_sha256") != fingerprint:
-            raise ValueError("The cache belongs to another manifest; use a new cache file")
+        if saved.get("input_fingerprint") != fingerprint:
+            raise ValueError("The cache belongs to other inputs or an older inspector; use a new cache file")
         rows = {(r["bundle"], r["path"].casefold()): r for r in saved["rows"]}
         completed = set(saved["completed"])
     else:
@@ -120,8 +120,8 @@ def inspect_bundles(base, manifest, bundles_dir, cache_path, fingerprint):
             if key[0] == name and key not in rows:
                 rows[key] = {**entry, "inspection_error": "CatalogOnly"}
         completed.add(name)
-        cache_path.write_text(json.dumps({"manifest_sha256": fingerprint,
-                                         "completed": sorted(completed), "rows": list(rows.values())}), encoding="utf-8")
+        save_json(cache_path, {"input_fingerprint": fingerprint,
+                              "completed": sorted(completed), "rows": list(rows.values())})
         if position == 1 or position % 20 == 0 or position == len(names):
             print(f"Inspected {position}/{len(names)} prefab bundles; {len(rows)} prefab entries", flush=True)
     return list(rows.values()), len(names)
@@ -181,13 +181,26 @@ def render(rows, manifest_path, game_version, bundle_count, catalog_count):
     return "\n".join(lines) + "\n"
 
 
+def catalog_cache(manifest_path, manifest, override=None):
+    """Retain resumable AssetRipper results and invalidate changed source bundles."""
+    bundles = manifest_path.parent / "Bundles"
+    identity = ["AssetRipper 2.0", digest(__file__), digest(manifest_path),
+                [stamp(bundles / name) for name in sorted({k[0] for k in manifest})]]
+    fingerprint = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
+    path = Path(override).expanduser().resolve() if override else cache_dir(identity, persistent=True) / "catalog.json"
+    if any((p / ".git").exists() for p in path.parents):
+        raise ValueError("Keep catalog caches outside Git repositories")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path, fingerprint
+
+
 def main():
     """Export an explicitly requested inventory without launching or editing the game."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--game-version", required=True)
-    parser.add_argument("--cache", type=Path, required=True, help="Fresh task-local metadata cache outside the repo")
+    parser.add_argument("--cache", type=Path, help="Optional resume cache outside repositories; default: persistent local cache")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--english-names", action="store_true", help="Resolve display names from local components and localization (requires UnityPy)")
     args = parser.parse_args()
@@ -196,8 +209,8 @@ def main():
     if address.scheme != "http" or address.hostname not in {"127.0.0.1", "localhost", "::1"}:
         parser.error("Use a loopback AssetRipper service")
     manifest = parse_manifest(args.manifest)
-    fingerprint = hashlib.sha256(args.manifest.read_bytes()).hexdigest()
-    rows, count = inspect_bundles(args.base_url.rstrip("/"), manifest, args.manifest.parent / "Bundles", args.cache, fingerprint)
+    cache, fingerprint = catalog_cache(args.manifest, manifest, args.cache)
+    rows, count = inspect_bundles(args.base_url.rstrip("/"), manifest, args.manifest.parent / "Bundles", cache, fingerprint)
     if not set(manifest).issubset({(r["bundle"], r["path"].casefold()) for r in rows}):
         raise ValueError("Incomplete manifest coverage")
     if args.english_names:

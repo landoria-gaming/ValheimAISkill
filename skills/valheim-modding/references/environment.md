@@ -39,6 +39,7 @@ No Visual Studio desktop workload or Windows Build Tools is required by the temp
 | Steam default | `%ProgramFiles(x86)%\Steam\steamapps\common\Valheim` |
 | Xbox default root | `C:\XboxGames\Valheim`; check whether the executable/data are under `Content` |
 | `BEPINEX_PATH` | `%APPDATA%\r2modmanPlus-local\Valheim\profiles\dev\BepInEx` |
+| `STEAM_PATH` | Steam client directory containing `Steam.exe`; resolve it independently of the game library |
 
 Resolve paths on the actual machine. Use `%APPDATA%`, not a personal username, in
 Windows documentation. Restart the editor/agent after changing persistent variables.
@@ -62,11 +63,18 @@ On Linux/macOS use the real game and profile paths. The template defaults
 For a macOS app bundle or another layout, locate `assembly_valheim.dll` and
 override `-p:ValheimManagedPath="/actual/path/to/Managed"`.
 
+## Launch the modded Windows client
+
+Follow [Launching](launching.md) to reproduce r2modman's **Start modded** behavior
+for the selected store and profile. It covers Steam, Xbox/Game Pass, Doorstop
+versions, and the [direct executable alternative](launching.md#direct-executable-alternative).
+
 ## Inspect the actual game
 
 Inspect the installed Valheim and Unity DLLs on demand with ILSpy or `ilspycmd`.
 Prefer the [reusable code-inspection script](inspection-scripts.md#code-inspect-assemblies-and-types)
-for cached type lookup and targeted C#/IL extraction.
+for persistent cached type lookup and targeted C#/IL extraction. Manual commands
+below are a temporary fallback; prefer the helper for reusable results.
 The user does not need to maintain a decompiled source tree. Online snippets are
 examples, not API contracts; confirm exact signatures and behavior locally.
 

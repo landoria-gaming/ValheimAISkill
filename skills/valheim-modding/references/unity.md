@@ -44,6 +44,8 @@ that the API exists in the installed game.
    to confirm the type, member, overload, and Unity module.
 3. Inspect `assembly_valheim.dll` when ownership, initialization, or call timing
    depends on Valheim code.
-4. Do not use `UnityEditor` APIs. A BepInEx mod runs in the built player.
+4. Do not use `UnityEditor` APIs in a runtime BepInEx mod. Separate editor-only
+   import/export or validation tools may use them inside a Unity Editor project,
+   never as a game plugin dependency.
 5. For code changes, follow [Validation](validation.md). A documentation-only
    answer does not require a build or a game session.

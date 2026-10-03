@@ -5,7 +5,7 @@ data that DLL inspection alone cannot establish. Work from the user's installed
 game version; do not assume a particular bundle layout.
 
 Start with the [reusable scripts](inspection-scripts.md) for prefab lookup,
-English display names, and inventory icons. Use the manual API below to investigate
+English display names, inventory icons, and static Unity model packages. Use the manual API below to investigate
 unsupported cases or changed tool versions.
 
 ## Choose the input
@@ -104,6 +104,29 @@ when the task is to extract its actual pixels.
 For a requested bulk export, `/Export/PrimaryContent` or `/Export/UnityProject`
 accepts an output `Path` form field. Use a new empty directory and check disk space;
 these are broad exports, not replacements for a targeted asset request.
+For one static model, the [model helper](inspection-scripts.md#static-models-for-unity-editor)
+first creates a temporary selection containing only its visual objects, then asks
+AssetRipper to export that selection. Do not export Valheim's entire shared bundle
+just to obtain one prefab. `/Assets/Model.glb` exports a mesh, not a complete
+textured prefab ready for Unity import.
+
+Reuse the [persistent asset indexes](inspection-scripts.md#cache-and-limits)
+before loading a bundle again; retain them across tasks and invalidate changed
+inputs. Persistent metadata is not a live AssetRipper session: each new service
+still needs its selected inputs loaded.
+
+## Unity project reference
+
+The community [Valheim Unity Project Guide](https://github.com/Valheim-Modding/Wiki/wiki/Valheim-Unity-Project-Guide)
+distinguishes browsing assets from preparing assets for mods, and discusses dummy
+versus restored shaders. Its checked September 2026 revision targets Unity
+6000.0.75f1 and recommends Linear color space. Match these settings to the installed
+game; do not apply its older Unity 2020 sections automatically.
+
+Use it as a lead, not proof of a successful export. A single static model does not
+require a whole-game rip, game DLLs, UI packages, or script recovery. Inspect any
+external shader download before use; never overwrite an existing project to follow
+a tutorial. Our preview shader is intentionally approximate, not a shader restoration.
 
 ## Interpret and report
 

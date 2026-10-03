@@ -3,13 +3,25 @@
 
 import argparse
 import io
-import json
+from importlib.metadata import version
 from pathlib import Path
 
 import asset_ripper as ar
 from asset_index import (bundle_facts, english_translations, find_collection_bundle,
                          find_prefab, localize_name, manifest_entries)
-from inspection_common import cache_dir, digest, game_data, print_json, save_json, stamp
+from inspection_common import cache_dir, cached_result, digest, game_data, print_json, save_bytes, save_json, stamp
+
+
+def input_identity(inputs):
+    """Include nearby resource streams and script metadata that a loader may read."""
+    paths = [Path(p).resolve(strict=True) for p in inputs]
+    dependencies = set()
+    for path in paths:
+        dependencies.update(p for p in path.parent.iterdir()
+                            if p.is_file() and p.suffix.lower() in {".ress", ".resource"})
+        dependencies.update((path.parent / "Managed").glob("*.dll"))
+    return {"ordered_inputs": [stamp(p) for p in paths],
+            "dependencies": [stamp(p) for p in sorted(dependencies)]}
 
 
 def prefab_info(data, name):
@@ -62,14 +74,16 @@ def inventory_icon(data, name, variant=0, base=None, tool=None):
     bundle = find_collection_bundle(source.parent, target["collection"])
     identity = {"scripts": [digest(p) for p in sorted(Path(__file__).parent.glob("*.py"))],
                 "prefab": row["path"], "variant": variant,
-                "source": stamp(source), "icon_bundle": stamp(bundle), "target": target}
-    folder = cache_dir(identity)
+                "source": stamp(source), "icon_bundle": stamp(bundle), "target": target,
+                "tool": ar.cache_identity(tool), "english_names": row["english_names"],
+                "inputs": input_identity([source, bundle]),
+                "libraries": {name: version(name) for name in ("UnityPy", "Pillow")}}
+    folder = cache_dir(identity, persistent=True, category="images")
     path = folder / "inventory-icon.png"
     metadata = folder / "provenance.json"
-    if path.is_file() and metadata.is_file():
-        result = json.loads(metadata.read_text(encoding="utf-8"))
-        if digest(path) == result.get("png_sha256"):
-            return {**result, "cache_hit": True}
+    result = cached_result(path, identity) if tool else None
+    if result is not None:
+        return {**result, "path": str(path), "cache_hit": True}
     # The small sprite bundle is sufficient for most inventory icons; never load
     # the entire game or guess by a sprite's name alone.
     with ar.session(base, tool) as address:
@@ -81,12 +95,46 @@ def inventory_icon(data, name, variant=0, base=None, tool=None):
         selected = matches[0]
         sprite = ar.asset_json(address, selected["locator"])
         image = crop_sprite(ar.export(address, selected["locator"], "png"), sprite)
-        image.save(path, format="PNG")
+        buffer = io.BytesIO()
+        image.save(buffer, format="PNG")
+        save_bytes(path, buffer.getvalue())
     result = {"prefab": row["root_name"], "english_names": row["english_names"],
               "path": str(path), "width": image.width, "height": image.height,
-              "variant": variant, "sprite": selected["name"], "png_sha256": digest(path),
+              "variant": variant, "sprite": selected["name"], "png_sha256": digest(path), "output_sha256": digest(path),
               "source": identity, "exporter": "AssetRipper 2.0 + metadata-guided sprite crop"}
     save_json(metadata, result)
+    return {**result, "cache_hit": False}
+
+
+def export_asset(inputs, query, kind=None, path_id=None, format_name="json", base=None, tool=None):
+    """Cache a targeted export before starting AssetRipper; never reuse live locators."""
+    identity = {"scripts": [digest(Path(__file__)), digest(Path(ar.__file__))],
+                "inputs": input_identity(inputs), "query": query, "class": kind,
+                "id": path_id, "format": format_name, "tool": ar.cache_identity(tool)}
+    if format_name == "png":
+        identity["pillow"] = version("Pillow")
+    folder = cache_dir(identity, persistent=True, category="images" if format_name == "png" else "assets")
+    path = folder / ("asset." + {"text": "txt", "binary": "bin"}.get(format_name, format_name))
+    result = cached_result(path, identity) if tool else None
+    if result is not None:
+        return {**result, "path": str(path), "cache_hit": True}
+    with ar.session(base, tool) as address:
+        ar.load(address, inputs)
+        rows = [r for r in ar.search(address, query)
+                if (not kind or r["class"] == kind) and (path_id is None or r["locator"]["D"] == path_id)]
+        if len(rows) != 1:
+            raise ValueError(f"Expected one asset, found {len(rows)}; refine --query, --class, or --id")
+        payload = ar.export(address, rows[0]["locator"], format_name)
+        if format_name == "png" and rows[0]["class"] == "Sprite":
+            image = crop_sprite(payload, ar.asset_json(address, rows[0]["locator"]))
+            buffer = io.BytesIO()
+            image.save(buffer, format="PNG")
+            payload = buffer.getvalue()
+        save_bytes(path, payload)
+    result = {"path": str(path), "bytes": path.stat().st_size, "source": identity,
+              "asset": {"name": rows[0]["name"], "class": rows[0]["class"], "path_id": rows[0]["locator"]["D"]},
+              "output_sha256": digest(path)}
+    save_json(folder / "provenance.json", result)
     return {**result, "cache_hit": False}
 
 
@@ -122,26 +170,15 @@ def main():
             print_json(prefab_info(data, args.name)[0])
         elif args.command == "icon":
             print_json(inventory_icon(data, args.name, args.variant, args.base_url, args.tool))
+        elif args.command == "export":
+            print_json(export_asset(args.input, args.query, args.kind, args.id, args.format, args.base_url, args.tool))
         else:
             with ar.session(args.base_url, args.tool) as base:
                 ar.load(base, args.input)
                 rows = [r for r in ar.search(base, args.query)
                         if (not args.kind or r["class"] == args.kind)
                         and (args.id is None or r["locator"]["D"] == args.id)]
-                if args.command == "search":
-                    print_json(rows)
-                else:
-                    if len(rows) != 1:
-                        raise ValueError(f"Expected one asset, found {len(rows)}; refine --query, --class, or --id")
-                    folder = cache_dir([digest(__file__), [stamp(p) for p in args.input], rows[0], args.format])
-                    payload = ar.export(base, rows[0]["locator"], args.format)
-                    path = folder / ("asset." + {"text": "txt", "binary": "bin"}.get(args.format, args.format))
-                    if args.format == "png" and rows[0]["class"] == "Sprite":
-                        crop_sprite(payload, ar.asset_json(base, rows[0]["locator"])).save(path, format="PNG")
-                    else:
-                        path.write_bytes(payload)
-                    save_json(folder / "provenance.json", {"inputs": [stamp(p) for p in args.input], "asset": rows[0]})
-                    print_json({"path": str(path), "bytes": path.stat().st_size, "asset": rows[0]})
+                print_json(rows)
     except (OSError, ValueError, KeyError, ImportError) as error:
         parser.exit(1, f"Asset inspection failed: {error}\n")
 

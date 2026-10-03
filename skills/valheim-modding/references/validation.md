@@ -29,21 +29,10 @@ saves or full logs when a small, redacted excerpt is enough.
 
 ## Command troubleshooting
 
-Ask for the exact command, arguments, output or error, and where it was entered
-(in-game console, chat, server console, or OS terminal). Identify whether it is a
-built-in command or supplied by a mod, and check that component's version.
-
-- Check spelling, argument order, quoting, accepted values, and whether the
-  command is registered in the installed version. Use the command's registration,
-  parser, and handler in accessible game or mod code to confirm the syntax.
-- Check console availability, developer-command requirements, administrator
-  permissions, and local/client/server restrictions. Being an administrator does
-  not necessarily enable every command in every execution context.
-- Explain the failed condition and show a corrected example only when verified.
-  If it remains uncertain, state what evidence is missing.
-- Do not execute state-changing commands or enable developer features merely to
-  demonstrate a fix. Explain their effects and obtain agreement first; use a
-  disposable world for commands that could damage progression or saved state.
+Use [Console, developer commands, and debug mode](commands.md) for command syntax,
+cheat/confirmation gates, debug shortcuts, administration, multiplayer roles, and
+the diagnostic sequence. Check the installed handler; do not enable cheats or run
+a state-changing command merely to answer a question.
 
 ## Gameplay advice
 
@@ -97,9 +86,14 @@ dotnet build -c Release -p:DeployOnBuild=true
 
 - Check the destination is the user's development profile before using deployment.
 - Leave deployment disabled for packaging, isolated builds, and CI.
-- If Valheim holds the DLL open, ask the user to exit or use already-authorized
-  process control. Do not kill the game and risk unsaved progress.
-- Restart Valheim after **every** updated DLL. Rejoining a world does not reload it.
+- If Valheim holds the DLL open, ask the user to exit or explicitly request a
+  shutdown. Follow the shared process-control rule; never stop it automatically.
+- Every updated DLL requires a full game restart to take effect; rejoining a
+  world does not reload it. Explain this requirement and wait for the user's
+  explicit restart request or for them to restart it themselves.
+
+When launching is part of the test scope, use the selected profile's
+[Start modded workflow](launching.md).
 
 [Landoria Quick Launch](https://github.com/landoria-gaming/Landoria.QuickLaunch)
 can speed up repeated world entry. Use disposable test characters/worlds.

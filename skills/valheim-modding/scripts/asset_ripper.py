@@ -12,6 +12,17 @@ import time
 from urllib.parse import parse_qs, urlencode, urlsplit
 from urllib.request import Request, urlopen
 
+from inspection_common import stamp
+
+
+def cache_identity(tool):
+    """Identify a local tool build without launching it; external services are unverified."""
+    if not tool:
+        return None
+    executable = Path(tool).resolve(strict=True)
+    files = {executable, *executable.parent.glob("*.dll"), *executable.parent.glob("*.json")}
+    return [stamp(p) for p in sorted(files) if p.is_file()]
+
 
 def validate_base(base):
     parsed = urlsplit(base)

@@ -169,18 +169,40 @@ pair before adding a type; `ZRpc` does not serialize arbitrary objects for you.
 
 ## Steam and PlayFab
 
-`ZNet.m_onlineBackend` selects the session's game transport. Do not infer it from
-the user's store, operating system, or whether the host is dedicated.
+Separate the store used to launch the game, the multiplayer feature, and the
+session's network backend:
+
+| Term | Meaning in Valheim |
+| --- | --- |
+| Steam installation | Where this copy was obtained/launched; a Steam player can join a Steam or crossplay session |
+| Steam session / Steamworks backend | Steam networking and discovery; without crossplay, the official server guide limits joining to Steam users |
+| Crossplay | The feature allowing supported platforms to play together; it selects the PlayFab backend, not a different world-host role |
+| PlayFab | The services used for crossplay login, lobbies, join codes, and Party transport/relay; not a separate store or an automatically hosted world |
+
+In the inspected client, `FejdStartup.GetOnlineBackend` maps the host's crossplay
+toggle to `PlayFab` or `Steamworks`; the `-crossplay` startup argument selects
+PlayFab too. The [official dedicated-server guide](https://www.valheimgame.com/support/a-guide-to-dedicated-servers/)
+documents `-crossplay` for cross-platform servers and Steam networking when it is
+omitted. Recheck the target build and platform/account multiplayer permissions.
+
+`ZNet.m_onlineBackend` selects the session's game transport. Inspect it and the
+active socket; do not infer it from the user's store, OS, server visibility, or
+whether the host is dedicated. A Steam-launched player host with crossplay enabled
+is a **PlayFab listen server**, not a dedicated server. A Linux dedicated server
+can use either backend. Changing the [launch route](launching.md) is not a network
+backend switch.
 
 | Backend | Implementation and operational meaning |
 | --- | --- |
 | Steamworks | `ZSteamSocket` calls SteamNetworkingSockets; `ZSteamMatchmaking` handles Steam discovery/registration and ticket checks |
 | PlayFab / crossplay | `ZPlayFabSocket` uses PlayFab Party data messages; `ZPlayFabMatchmaking` registers/searches lobbies and resolves join codes; `PlayFabManager` coordinates authentication |
 
-PlayFab provides connection services, not an automatic replacement for the
-player's world-host process. The same Valheim RPC/ZDO concepts sit above either
-transport. Steam services can still appear in a Steam client's logs when the
-selected game transport is PlayFab; inspect the actual socket/backend.
+The same Valheim RPC/ZDO concepts sit above either transport. Steam services can
+still appear in a Steam client's logs when the selected game transport is
+PlayFab; inspect the actual socket/backend.
+Crossplay also does not install mods on other players' devices or guarantee that
+custom DLLs, assets, and RPCs work on every platform; apply the compatibility
+checks below.
 
 The checked PlayFab wrapper also handles sequencing, acknowledgements, recovery,
 and conditional compression. Captured transport bytes need not start with a
@@ -188,6 +210,9 @@ and conditional compression. Captured transport bytes need not start with a
 game-state synchronization as separate stages; listing a server does not prove
 a successful world connection. Ports, crossplay join restrictions, and launch
 flags are covered once in the [official-guide notes](servers.md#official-server-guide).
+For connection support, establish the backend, local role, join method, versions,
+and failing stage before suggesting firewall or account changes. A crossplay
+privilege failure is different from a missing port forward or a mod mismatch.
 
 ## Authority and mod compatibility
 

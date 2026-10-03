@@ -56,6 +56,25 @@ exercise explicit deployment into a temporary directory, reject a missing icon,
 and inspect a release ZIP. They never deploy into a live profile or start the game.
 All generated projects, build caches, and test icons stay outside this repository.
 
+### Optional model import check
+
+After exporting a static prefab, validate the actual package with an installed,
+licensed Unity Editor. This creates a separate temporary Built-in project; it
+does not modify an existing project, start Valheim, or install Unity:
+
+```bash
+python scripts/test_model_import.py --unity "/path/to/Unity" \
+  --package "/local/cache/wood_stack.unitypackage"
+```
+
+The test imports the package, checks meshes/materials/references, and renders a
+preview. It waits for the import-completed callback before validation. Open the
+reported PNG for visual review. The script exits only its own test Editor;
+Valheim clients, servers, and other Editor processes are untouched.
+Report the tested editor version and render pipeline; do not infer URP/HDRP or
+animated-model support from this static test. Generated game assets never enter
+CI fixtures, Git, or the skill archive.
+
 Report the OS and SDK used. Test game behavior separately; successful builds do
 not establish gameplay or cross-platform compatibility.
 

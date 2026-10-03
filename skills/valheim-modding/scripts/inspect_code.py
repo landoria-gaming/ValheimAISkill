@@ -7,7 +7,7 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from inspection_common import cache_dir, digest, game_data, print_json, save_json, stamp
+from inspection_common import cache_dir, cached_result, digest, game_data, print_json, save_bytes, save_json, stamp
 
 
 def run_ilspy(executable, arguments):
@@ -27,17 +27,17 @@ def inspect(assembly, action, type_name=None, il=False, executable="ilspycmd"):
     identity = {"script": digest(__file__), "assembly_sha256": digest(assembly),
                 "references": [stamp(p) for p in sorted(assembly.parent.glob("*.dll"))],
                 "tool": version, "action": action, "type": type_name, "il": il}
-    folder = cache_dir(identity)
+    folder = cache_dir(identity, persistent=True, category="code")
     output = folder / ("types.txt" if action == "types" else "type.il" if il else "type.cs")
-    hit = output.is_file()
+    hit = cached_result(output, identity) is not None
     if not hit:
         if action == "types":
             text = "".join(run_ilspy(tool, ["-l", kind, str(assembly)]) for kind in "cised")
         else:
             args = ["-t", type_name, *(["--ilcode"] if il else [])]
             text = run_ilspy(tool, [*args, "-r", str(assembly.parent), str(assembly)])
-        output.write_text(text, encoding="utf-8")
-        save_json(folder / "provenance.json", identity)
+        save_bytes(output, text.encode("utf-8"))
+        save_json(folder / "provenance.json", {"source": identity, "output_sha256": digest(output)})
     return output, hit
 
 
@@ -50,7 +50,7 @@ def main():
     sub.add_parser("assemblies", help="List local DLL paths and SHA-256 fingerprints")
     types = sub.add_parser("types", help="List classes, interfaces, structs, enums, delegates")
     types.add_argument("--query", default="")
-    single = sub.add_parser("type", help="Decompile one exact type into the temporary cache")
+    single = sub.add_parser("type", help="Decompile one exact type into the persistent local cache")
     single.add_argument("name")
     single.add_argument("--il", action="store_true")
     single.add_argument("--query", help="Show matching lines from the extracted type")

@@ -1,9 +1,10 @@
-"""Shared read-only inspection helpers. Generated files stay in a temporary cache."""
+"""Read-only inspection helpers with persistent, source-keyed local caches."""
 
 import hashlib
 import json
 import os
 from pathlib import Path
+import sys
 import tempfile
 
 
@@ -21,10 +22,35 @@ def stamp(path):
     return [str(path), stat.st_size, stat.st_mtime_ns]
 
 
-def cache_dir(identity):
-    """Separate inputs and script revisions; never use a project as a cache."""
+def persistent_cache_root():
+    """Keep asset indexes across agent sessions, outside repos and temp cleanup."""
+    override = os.environ.get("VALHEIM_SKILL_CACHE")
+    if override:
+        root = Path(override).expanduser()
+    elif sys.platform == "win32":
+        # Packaged desktop apps can redirect LOCALAPPDATA to their own sandbox.
+        # Use a profile-level path shared by agents and unaffected by app removal.
+        root = Path.home() / ".cache/valheim-modding"
+    elif sys.platform == "darwin":
+        root = Path.home() / "Library/Application Support/ValheimModdingSkill/cache"
+    else:
+        root = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "valheim-modding/cache"
+    if not root.is_absolute():
+        raise ValueError("The persistent cache path must be absolute")
+    root = root.resolve()
+    if any((p / ".git").exists() for p in (root, *root.parents)):
+        raise ValueError("Keep the persistent cache outside Git repositories")
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def cache_dir(identity, persistent=False, category="indexes"):
+    """Separate inputs and script revisions; keep working files temporary."""
+    if category not in {"indexes", "code", "images", "assets"}:
+        raise ValueError("Unknown cache category")
     key = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:24]
-    path = Path(tempfile.gettempdir()) / "valheim-skill-inspection" / key
+    root = persistent_cache_root() / category if persistent else Path(tempfile.gettempdir()) / "valheim-skill-inspection"
+    path = root / key
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -37,6 +63,25 @@ def save_json(path, data):
         json.dump(data, stream, ensure_ascii=False, indent=2)
         staging = Path(stream.name)
     staging.replace(path)
+
+
+def save_bytes(path, payload):
+    path = Path(path)
+    with tempfile.NamedTemporaryFile(dir=path.parent, delete=False, suffix=".tmp") as stream:
+        stream.write(payload)
+        staging = Path(stream.name)
+    staging.replace(path)
+
+
+def cached_result(path, identity):
+    """Incomplete, corrupt, or differently sourced outputs are cache misses."""
+    try:
+        result = json.loads(path.with_name("provenance.json").read_text(encoding="utf-8"))
+        if result.get("source") == identity and result.get("output_sha256") == digest(path):
+            return result
+    except (OSError, ValueError, AttributeError):
+        pass
+    return None
 
 
 def game_data(game):

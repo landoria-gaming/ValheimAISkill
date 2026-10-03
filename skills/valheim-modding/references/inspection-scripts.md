@@ -36,7 +36,7 @@ python scripts/inspect_code.py --game "/path/to/Valheim" --assembly assembly_gui
 
 `types` lists all supported kinds and filters names without decompiling the whole
 game. `type` writes one C# or IL file and reports its absolute path; `--print`
-prints the code, and `--query` returns matching lines. Use `rg` on that temporary
+prints the code, and `--query` returns matching lines. Use `rg` on that cached
 file when more context is needed. No DLL is executed. Full project decompilation
 remains an explicit ILSpy operation, not the default for a question.
 
@@ -58,6 +58,11 @@ service instead: loading inputs replaces its current session, so do not point
 it at another person's active inspection. Repeat `--input` to include required
 dependencies. `export` supports JSON, YAML, text, PNG, and supported raw binaries.
 Ambiguous names fail instead of silently selecting the first match.
+With `--tool`, repeated icon and targeted export requests reuse verified local
+results without starting AssetRipper or reloading the inputs. `cache_hit` reports
+reuse. A `--base-url` service has no verified local tool identity, so these requests
+retain the output but always extract again. Search still uses a live session;
+its locators must not be reused in another session.
 
 ### Inventory icons
 
@@ -79,7 +84,7 @@ Some prefabs have no inventory icon; report that fact without inventing one.
 python scripts/export_prefab_catalog.py \
   --manifest "/path/to/valheim_Data/StreamingAssets/SoftRef/manifest_extended" \
   --base-url http://127.0.0.1:PORT --game-version VERIFIED_VERSION \
-  --cache "/agent/temp/prefab-cache.json" --english-names \
+  --english-names \
   --output "/chosen/report/valheim-prefabs.md"
 ```
 
@@ -87,20 +92,85 @@ Only request a bulk inventory when needed; a single icon or recipe uses targeted
 inspection. English names come from component fields and the local translation
 files in `LocalizationSettings` order, not a guessed conversion of prefab IDs.
 Unknown names remain blank. The report states scope and missing data.
+Bulk inspection resumes from the persistent cache by default. Optional `--cache`
+selects another local metadata file outside repositories; keep it for later runs.
+
+### Static models for Unity Editor
+
+```bash
+python scripts/export_model.py wood_stack \
+  --game "/path/to/Valheim" --tool "/path/to/AssetRipper.GUI.Free"
+```
+
+Use an exact prefab name or catalog path. Optional `--output` must name a **new**
+directory outside the game and Git repositories. Otherwise the export is kept in
+the [persistent cache](#cache-and-limits). The result includes a `.unitypackage`,
+its editable `Assets` tree, import instructions, and local provenance.
+
+- UnityPy selects only the static hierarchy, renderers, LOD groups, meshes,
+  materials, and base textures in memory. AssetRipper converts that small selection
+  into native Unity assets. The original game bundle is never rewritten.
+- Import with **Assets > Import Package > Custom Package** in a separate Unity 6
+  Built-in Render Pipeline project. Open the exported prefab or drag it into a
+  scene. Prefer the recorded source Unity version or a compatible newer editor.
+- The root position is reset to zero; child transforms, mesh data, inactive visual
+  variants, and material tint are retained. Game scripts, physics, colliders,
+  particles, audio, and gameplay behavior are intentionally absent.
+- A supplied diffuse preview shader replaces the compiled game shaders. Only
+  `_MainTex` base textures are included; normal, emission, noise, and other maps
+  and game-specific effects are omitted and reported. URP/HDRP need a separate
+  material conversion. This is not an exact in-game appearance reconstruction.
+- This first exporter supports static models whose visual references resolve in
+  one serialized collection. Skinned/animated prefabs, external dependencies,
+  material variants, and static batches fail explicitly; do not claim they were
+  exported. Do not use this version for a Greydwarf character.
+
+Validate a requested export in Unity when available: check meshes, materials,
+references, transforms, and visible rendering. The repository's optional
+`scripts/test_model_import.py` imports the package into an isolated project and
+renders a preview; it does not modify an existing Unity project or run Valheim.
+An archive structure check alone does not establish successful Unity import.
 
 ## Cache and limits
 
-Generated code, metadata, images, and provenance stay under the operating system's
-temporary directory, in `valheim-skill-inspection`; service logs use a separate
-`valheim-assetripper-…` directory. Treat these as disposable local data. Never commit
-or package them. Share only the specifically requested report or permitted image.
+Reuse inspection results across tasks and agent restarts. Store them under a
+persistent per-user data directory, not the OS temporary directory:
+
+| OS | Default cache root |
+| --- | --- |
+| Windows | `%USERPROFILE%/.cache/valheim-modding` (outside desktop-app sandbox caches) |
+| Linux | `$XDG_DATA_HOME/valheim-modding/cache`, or `~/.local/share/valheim-modding/cache` |
+| macOS | `~/Library/Application Support/ValheimModdingSkill/cache` |
+
+Set `VALHEIM_SKILL_CACHE` to an absolute directory to override it. Git repositories
+are rejected. The cache contains:
+
+- `indexes/`: prefab facts, English names, bulk catalogs, and bundle indexes.
+- `code/`: ILSpy type lists and requested C#/IL extracts.
+- `images/`: inventory icons and targeted PNG exports.
+- `assets/`: targeted JSON properties and other supported asset exports.
+- `exports/`: static model packages, kept without automatic reuse.
+
+Do not clear this cache at task completion. Old entries are retained; cleanup is explicit
+and targeted. A new model export creates a new directory rather than overwriting
+another result. This local storage is durable across sessions, not a backup or a
+guarantee against user/disk cleanup.
+
+AssetRipper working files and service logs remain temporary; stopping the
+task-owned service does not delete persistent results. Existing temporary results
+are not blindly migrated: a first request regenerates a verified persistent entry.
+Never commit cached game data or include it in the
+skill ZIP. Share only the specifically requested report or permitted export.
 
 Code caches use DLL hashes, reference file stamps, tool version, and script identity.
-Asset caches use input paths, sizes, modification times, and script identity; image
-cache hits also verify the PNG hash. A normal game update invalidates the affected
-cache. For files modified while preserving size and timestamps, use a fresh temp
-location or remove only the confirmed inspection cache. A prefab-catalog resume
-cache is tied to its manifest; start a new one after any game update.
+Asset caches use input paths, sizes, modification times, and script identity.
+Targeted exports also include request options and local tool-file stamps. Code,
+icon, and targeted-export hits verify output SHA-256 and provenance; damaged or
+incomplete entries are regenerated. A normal game update invalidates the affected
+cache. For files modified while preserving size and timestamps, use a new cache
+location or remove only the confirmed affected entry. Prefab-catalog resume caches
+include the manifest hash, bundle stamps, and inspector revision; an explicitly
+selected stale cache is rejected rather than silently reused.
 
 These helpers do not install tools automatically, execute game assemblies, export
 a reconstructed game project, or promise runtime values unaffected by mods.
