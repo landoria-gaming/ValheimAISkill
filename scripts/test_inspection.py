@@ -56,8 +56,10 @@ class MetadataTests(unittest.TestCase):
                 (data / "Managed").mkdir(parents=True)
                 (data / "Managed/assembly_valheim.dll").touch()
                 (data / "resources.assets").touch()
-                self.assertEqual(game_data(str(game)), data)
-                self.assertEqual(game_data(str(data)), data)
+                # Windows short paths and macOS /var aliases resolve to the same
+                # directory but do not have identical textual representations.
+                self.assertEqual(game_data(str(game)), data.resolve())
+                self.assertEqual(game_data(str(data)), data.resolve())
 
     def test_game_gate_rejects_detached_dlls_and_missing_install(self):
         with tempfile.TemporaryDirectory() as tmp:
