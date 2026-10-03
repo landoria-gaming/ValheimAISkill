@@ -206,6 +206,7 @@ def select_model(data, name, destination):
 
 
 def prepare_output(path, data):
+    data = Path(data).expanduser().resolve()
     if path is None:
         parent = persistent_cache_root() / "exports"
         parent.mkdir(exist_ok=True)

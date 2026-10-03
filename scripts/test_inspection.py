@@ -409,6 +409,18 @@ class StaticModelTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 export_model.prepare_output(existing, data)
 
+    def test_equivalent_game_path_is_rejected_before_creating_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            data = root / "game/valheim_Data"
+            data.mkdir(parents=True)
+            # Reproduce an unresolved alias on every OS, without symlink privileges.
+            alias = root / "game/../game/valheim_Data"
+            output = data / "export"
+            with self.assertRaisesRegex(ValueError, "outside the game"):
+                export_model.prepare_output(output, alias)
+            self.assertFalse(output.exists())
+
     def test_unitypackage_members_and_broken_guid(self):
         import tarfile
         with tempfile.TemporaryDirectory() as tmp:
