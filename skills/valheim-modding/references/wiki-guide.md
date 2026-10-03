@@ -1,12 +1,20 @@
 # Valheim Wiki guide
 
-Use the [Valheim Wiki](https://valheim.fandom.com/wiki/Valheim_Wiki) as a
-secondary reference and page finder for player questions. Its main page groups
-articles into families such as Biomes, Weapons, Food, Armor, Creatures, Crafting,
-Building, and How to play. The quick-navigation index also groups World,
-Creatures, Food and meads, Weapons, Armor and accessories, Tools, Buildings,
-Materials, and Mechanics. Follow the family that best matches the question, then
-open a focused article rather than relying on a broad overview.
+Use the English-language [Valheim Wiki](https://valheim.fandom.com/wiki/Valheim_Wiki)
+as a community-maintained secondary reference and page finder for player
+questions. The wiki describes itself as approved by Valheim's developers, but it
+is not first-party game documentation; use official Iron Gate and Valheim sources
+for official statements. Always search and read the English article, even when
+the user asks in another language; translate the query to English as needed, then
+answer in the user's language. Treat the English wiki as the preferred, most
+up-to-date wiki version.
+
+Its main page groups articles into families such as Biomes, Weapons, Food, Armor,
+Creatures, Crafting, Building, and How to play. The quick-navigation index also
+groups World, Creatures, Food and meads, Weapons, Armor and accessories, Tools,
+Buildings, Materials, and Mechanics. Follow the family that best matches the
+question, then open a focused English article rather than relying on a broad
+overview.
 
 ## Find the relevant page
 
@@ -50,8 +58,8 @@ as JSON. Copy an exact title into the second command; it prints the article as
 Markdown. Both commands use Python's standard library for HTTP and save no wiki
 content.
 
-Choose the exact title from the search results and pass it to the Markdown
-converter. Search calls Fandom's suggestion endpoint; the second script requests
+Choose the exact English article title from the search results and pass it to the
+Markdown converter. Search calls Fandom's suggestion endpoint; the second script requests
 the rendered article through MediaWiki's parse API, extracts `<main>` or Fandom's
 `.mw-parser-output` content, and prints Markdown to standard output. It does not
 write the page or conversion to disk. Read its output in the current task rather

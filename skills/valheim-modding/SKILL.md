@@ -1,6 +1,6 @@
 ---
 name: valheim-modding
-description: "Create and debug Valheim BepInEx mods, launch modded clients, package for Thunderstore, configure and maintain Windows or Linux dedicated servers, and help players with bugs, commands, bosses, or crafting recipes using game code and data. Not for other games or unrelated C# work."
+description: "Create and debug Valheim BepInEx mods, launch modded clients, package for Thunderstore, maintain dedicated servers, and answer player questions using game code and the English Valheim Wiki. Not for other games or unrelated C# work."
 ---
 
 # Valheim BepInEx Modding
