@@ -75,3 +75,25 @@ or converting the same page again. Fetch it again only if the user asks for a
 refresh or the output missed needed content; if extraction looks incomplete, view
 the article page as a fallback. This is session-only caching: do not save wiki
 pages or converted Markdown to the persistent disk cache or repository by default.
+
+## Display wiki images
+
+Only fetch an article image when it is relevant to the answer and you intend to
+show it to the user. Resolve the article's image to its best available source
+file (not a tiny thumbnail when a suitable original is linked), then download it
+to a temporary, session-local cache and display the local cached copy. Key the
+cache by the canonical image URL and reuse that file if the same image is shown
+again during the session; do not download it twice unless the user requests a
+refresh or the cached file is missing or invalid. Use the platform's supported
+local-image display mechanism and an absolute local path. Do not commit the image,
+put it in the mod, or retain it in the persistent game-data cache. Keep the source
+page or image attribution available when presenting it.
+
+For image URLs hosted on `static.wikia.nocookie.net`, strip the URL at the end of
+the actual image filename extension before downloading. Remove any trailing
+`/revision/...` path, query string, or fragment after `.png`, `.jpg`, `.jpeg`,
+`.gif`, `.webp`, or another recognized image extension. For example, turn
+`https://static.wikia.nocookie.net/valheim/images/8/82/Greydwarf.png/revision/latest/scale-to-width-down/536?cb=...`
+into `https://static.wikia.nocookie.net/valheim/images/8/82/Greydwarf.png`.
+Download that cleaned URL into the session cache, then display the cached file;
+do not embed the remote image URL directly in the conversation.
