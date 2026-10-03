@@ -85,9 +85,12 @@ to a temporary, session-local cache and display the local cached copy. Key the
 cache by the canonical image URL and reuse that file if the same image is shown
 again during the session; do not download it twice unless the user requests a
 refresh or the cached file is missing or invalid. Use the platform's supported
-local-image display mechanism and an absolute local path. Do not commit the image,
-put it in the mod, or retain it in the persistent game-data cache. Keep the source
-page or image attribution available when presenting it.
+local-image display mechanism and an absolute local path. In Windows Markdown
+image paths, use forward slashes (`C:/...`), not backslashes; for example:
+`![Greydwarf](C:/Users/<user>/AppData/Local/Temp/valheim-wiki-session/Greydwarf.png)`.
+Do not commit the image, put it in the mod, or retain it in the persistent
+game-data cache. Keep the source page or image attribution available when
+presenting it.
 
 For image URLs hosted on `static.wikia.nocookie.net`, strip the URL at the end of
 the actual image filename extension before downloading. Remove any trailing
