@@ -1,0 +1,9 @@
+{
+  "name": "ValheimMod",
+  "version_number": "0.1.0",
+  "website_url": "",
+  "description": "A configurable local chat greeting on your first spawn.",
+  "dependencies": [
+    "denikson-BepInExPack_Valheim-5.4.2351"
+  ]
+}

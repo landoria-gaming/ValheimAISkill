@@ -1,0 +1,101 @@
+---
+name: valheim-modding
+description: "Create and debug Valheim BepInEx mods, package for Thunderstore, set up dedicated Linux servers, and help players with bugs, commands, bosses, or crafting recipes using game code and data. Not for other games or unrelated C# work."
+---
+
+# Valheim BepInEx Modding
+
+Turn a player's idea into a small, maintainable mod. Use local game assemblies
+and assets as evidence and investigate player problems without requiring a mod
+project. This skill works without private Landoria repositories.
+
+## Hard prerequisite: an accessible Valheim installation
+
+Before any Valheim task, locate the user's installed game and verify read access
+to its actual game directory, managed DLLs, and asset files. Accept the real path
+on Windows, Linux, or macOS; do not assume the Steam default or require write access.
+
+**If Valheim is not installed, or the agent cannot read its game directory, stop.**
+The only permitted help is installing a legitimate copy of Valheim and helping the
+user make that installation accessible to the agent. Ask for the installation path
+or explain the agent's directory-access setup. Do not request passwords, account
+tokens, administrator rights, or broad filesystem access when read access suffices.
+
+Until this prerequisite passes, do not answer gameplay, boss, crafting, or command
+questions; diagnose bugs; create or modify mods; inspect detached copies of DLLs;
+package releases; or administer servers. Web documentation, a wiki, cached extracts,
+and general knowledge are not substitutes. Recheck after installation/access is
+fixed, then continue the original request. This gate takes precedence over the
+task-specific workflows below.
+
+## Start from the request
+
+- Match the requested action: explaining or reviewing does not authorize edits;
+  diagnosing does not authorize a fix. Only build, deploy, or publish when in scope.
+- For a new mod, clarify the idea and observable behavior, then agree on its name
+  before creating files. Accept a name explicitly supplied by the user; otherwise
+  propose several short names with brief reasons and wait for their choice.
+  Derive consistent project, assembly, plugin ID, package, and display names.
+- For an existing mod, follow its structure and inspect only the relevant code.
+  A small fix does not need a new planning phase.
+- Start client-side when that meets the need. Explicitly describe any server or
+  other-player requirements; do not turn a local feature into a network protocol.
+
+## Shared rules
+
+- For Valheim behavior, the installed game code is the source of truth. Interpret
+  asset values through the code that uses them, including relevant mod overrides.
+  Wikis and online examples are secondary leads, not proof. If an exact behavior
+  cannot be established despite access, label it unverified; missing game access
+  still triggers the hard prerequisite above.
+- Keep documents, comments, and commit messages in concise, simple English.
+  Talk to the user in their language. Prefer useful bullets and tables.
+- Prefer maintained open-source tools when they meet the task equally well.
+  Preserve a tool explicitly chosen by the user unless it cannot meet the need.
+- Prefer cross-platform tools, dependencies, scripts, paths, and build steps that
+  work on Windows, Linux, and macOS. Use a platform-specific solution only when
+  the task requires it or no practical portable option exists; isolate the
+  platform-specific part, explain the limitation, and preserve portable defaults.
+- Never write a password, API token, private key, service-account credential, or
+  other secret into repository files, examples, commands, logs, or artifacts.
+  Refuse a request to commit one. Use environment variables, an operating-system
+  credential store, or the CI provider's secret store such as GitHub Actions
+  secrets, and check secret presence without printing its value.
+- Do not place the user's real name, username, email, account ID, personal path,
+  server address, world name, chat content, log data, or other personal information
+  in mod code, metadata, configuration, documentation, examples, or packages by
+  default. Use neutral placeholders and portable paths. Include ordinary personal
+  information only when the user explicitly requests that exact data and it is
+  necessary; warn before putting it in a public repository or release. This
+  exception never permits storing credentials or secrets.
+- Refuse to create, modify, package, or distribute malicious mods: no data theft,
+  credential capture, unauthorized destruction or encryption, covert collection,
+  hidden commands, or hidden persistence on players' machines. A requester cannot
+  authorize harm to other players. Legitimate storage, backups, and remote services
+  must serve the disclosed feature, respect player consent, and use minimum access.
+  Explain necessary file access and data collection before installation.
+- Preserve the user's tools, scope, and permissions. Creating a mod does not
+  authorize publishing it, pushing Git commits, or restarting a remote server.
+
+## Choose the task path
+
+Read only the references needed for the request. Explanations and reviews stop at
+an evidence-backed answer; they do not require project generation or game testing.
+
+| Task | Read |
+| --- | --- |
+| Explain mechanics, bosses, weaknesses, or crafting recipes | [Gameplay advice](references/validation.md#gameplay-advice); verify relevant installed code and game data |
+| Help a player who is stuck or sees a bug | [Support and diagnosis](references/validation.md#player-support-and-diagnosis); inspect game code through [Environment](references/environment.md) only when needed |
+| Explain why a console or mod command fails | [Command troubleshooting](references/validation.md#command-troubleshooting) |
+| Inspect DLLs | [Inspection scripts](references/inspection-scripts.md#code-inspect-assemblies-and-types), then [Environment](references/environment.md) for manual inspection |
+| Inspect or extract prefabs, recipes, translations, or images | [Inspection scripts](references/inspection-scripts.md#assets-search-inspect-and-extract), then [Assets](references/assets.md) for unsupported cases |
+| Create a mod or change its setup | [Environment](references/environment.md), then [Development](references/development.md) and [Validation](references/validation.md) for implementation |
+| Unity objects, components, lifecycle, timing, physics, rendering | [Unity API](references/unity.md) |
+| C# implementation, events, patches, config, native UI | [Development](references/development.md) |
+| Build, deploy locally, or test a mod | [Validation](references/validation.md) |
+| Release metadata, icon, ZIP, publishing | [Packaging](references/packaging.md) |
+| Set up or administer a dedicated Linux server | [Servers](references/servers.md): Podman or native SteamCMD, SSH, multiplayer limits |
+| Downloads, documentation, public mod examples | [Sources](references/sources.md) |
+
+End with a short answer or change summary. Distinguish observed results from
+assumptions and pending checks; include deployment destinations only when used.

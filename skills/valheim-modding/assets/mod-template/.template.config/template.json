@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Landoria",
+  "classifications": [
+    "Valheim",
+    "BepInEx",
+    "Mod"
+  ],
+  "identity": "Landoria.ValheimModding.Starter",
+  "name": "Valheim BepInEx 5 mod",
+  "shortName": "valheim-mod",
+  "sourceName": "ValheimMod",
+  "preferNameDirectory": true,
+  "symbols": {
+    "pluginId": {
+      "type": "parameter",
+      "datatype": "text",
+      "replaces": "example.valheimmod",
+      "defaultValue": "example.valheimmod",
+      "description": "Unique BepInEx plugin ID, such as org.example.fjordgreeting."
+    },
+    "modAuthor": {
+      "type": "parameter",
+      "datatype": "text",
+      "replaces": "Mod Author",
+      "defaultValue": "Mod Author",
+      "description": "Copyright holder for the generated mod."
+    },
+    "modVersion": {
+      "type": "parameter",
+      "datatype": "text",
+      "replaces": "0.1.0",
+      "defaultValue": "1.0.0",
+      "description": "Initial Major.Minor.Patch release version."
+    },
+    "copyrightYear": {
+      "type": "parameter",
+      "datatype": "text",
+      "replaces": "CopyrightYear",
+      "defaultValue": "2026",
+      "description": "Copyright year."
+    }
+  },
+  "sources": [
+    {
+      "exclude": [
+        "**/bin/**",
+        "**/obj/**",
+        ".template.config/**",
+        "**/*.user",
+        "**/*.lock.json",
+        "artifacts/**"
+      ]
+    }
+  ],
+  "primaryOutputs": [
+    {
+      "path": "ValheimMod.csproj"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+# Fast metadata and dependency lookup; actual image exports use AssetRipper.
+UnityPy==1.25.2

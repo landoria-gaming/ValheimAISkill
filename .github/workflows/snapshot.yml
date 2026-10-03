@@ -1,0 +1,78 @@
+name: Skill snapshot
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: skill-snapshot-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Install test dependencies
+        run: python -m pip install -r skills/valheim-modding/scripts/requirements-assets.txt
+      - name: Test distribution and inspection helpers
+        run: python -m unittest discover -s scripts -p "test_*.py" -v
+      - name: Validate the release ZIP
+        run: python scripts/package_skill.py
+
+  snapshot:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Build snapshot package
+        run: python scripts/package_skill.py
+      - name: Publish rolling snapshot prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if gh release view snapshot --json isPrerelease --jq '.isPrerelease' > /tmp/snapshot-state; then
+            test "$(cat /tmp/snapshot-state)" = "true"
+          fi
+          if gh api "repos/$GH_REPO/git/ref/tags/snapshot" > /dev/null 2>&1; then
+            gh api --method PATCH "repos/$GH_REPO/git/refs/tags/snapshot" -f sha="$GITHUB_SHA" -F force=true > /dev/null
+          else
+            gh api --method POST "repos/$GH_REPO/git/refs" -f ref=refs/tags/snapshot -f sha="$GITHUB_SHA" > /dev/null
+          fi
+          notes="Automated skill snapshot from commit $GITHUB_SHA. This prerelease is replaced after successful pushes to main. It contains no Valheim DLLs or extracted game assets."
+          if gh release view snapshot > /dev/null 2>&1; then
+            gh release edit snapshot --title "Development snapshot" --notes "$notes" --prerelease --latest=false
+            gh release upload snapshot dist/valheim-modding.zip --clobber
+          else
+            gh release create snapshot dist/valheim-modding.zip --verify-tag --title "Development snapshot" --notes "$notes" --prerelease --latest=false
+          fi
