@@ -20,6 +20,12 @@ the game path once and remember it there. Revalidate a remembered path before
 use and after an update. This game access is needed for player support and game
 data questions too; it does not mean the user needs a modding setup.
 
+For a mod request, enforce this gate immediately when the user expresses intent
+to create or modify a mod, before brainstorming names or designs, asking other
+project-intake questions, inspecting repositories, or writing files. First verify
+that the actual Valheim installation is accessible; only then continue with the
+mod discussion and workflow below.
+
 BepInEx, a mod-manager profile, build tools, and their paths are task-specific:
 require them only to create, build, launch, or diagnose a mod, or to inspect
 mod-specific logs. Do not ask a player setting up a vanilla-game question to
