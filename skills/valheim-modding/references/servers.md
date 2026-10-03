@@ -27,8 +27,10 @@ code, runtime-role detection, networking, and save formats.
 - Check the console/startup log and add only the necessary firewall rules for
   the selected backend. Do not disable the firewall to fix a connection failure.
 - For unattended startup, agree on Task Scheduler or an appropriate service
-  wrapper and a non-administrator account. The game console executable is not
-  itself a Windows service; the chosen runner must support graceful shutdown.
+  wrapper and a non-administrator account. Enabling automatic startup or invoking
+  the service still requires the user's explicit request to start the server. The
+  game console executable is not itself a Windows service; the chosen runner must
+  support graceful shutdown.
 
 ## Native Linux installation
 
@@ -50,7 +52,9 @@ steamcmd \
   SteamCMD replaces during an update.
 - Install the Linux runtime libraries listed by the current official Valheim
   dedicated-server guide.
-- Use a `systemd` service for startup, graceful shutdown, and restart policy.
+- A `systemd` service can provide startup and graceful shutdown. Configure an
+  automatic restart policy only when requested, and never invoke `start`, `stop`,
+  or `restart` for the Valheim service without an explicit user request.
 
 Use the shared [maintenance checklist](#routine-maintenance) for updates on either OS.
 
@@ -71,8 +75,9 @@ the installed server before applying commands.
 - Permissions use `adminlist.txt`, `bannedlist.txt`, and `permittedlist.txt` in the
   save directory, with case-sensitive platform IDs. A nonempty permitted list
   excludes everyone not listed.
-- Shut down gracefully with Ctrl+C or the service's equivalent signal, then verify
-  exit. Confirm readiness from startup logs and an actual connection check.
+- When the user explicitly requests a server start or stop, use the appropriate
+  graceful method and verify the result. Confirm readiness from startup logs and
+  an actual connection check only after an authorized start.
 
 Check its Linux library requirements for the distribution. Its Docker example does
 not replace this skill's Podman preference.
@@ -85,15 +90,18 @@ in the user's profile or an agent-specific key the user chooses to provision.
 - Prefer an existing SSH host alias and key agent. Do not ask for private key text.
 - Confirm the host and host key; never bypass host verification for convenience.
 - Use least-privilege access. Diagnose with logs and service status first.
-- Restart the identified service/container only when authorized.
+- Start, stop, or restart the identified game service/container only when the user
+  explicitly requests that action. Diagnosis or maintenance alone is not permission.
   Warn about interrupting active players.
 
 ## Routine maintenance
 
 - Check process/service status, startup errors, game/BepInEx/plugin versions,
   free disk space, and backup health before changing the installation.
-- Agree on downtime, warn connected players, stop gracefully, verify a complete
-  backup, update, and check startup logs and a real player connection afterwards.
+- For a user-requested update that needs downtime, agree on timing and warn
+  connected players. Ask separately before stopping or starting the server if
+  those actions were not explicitly requested. Verify a complete backup before
+  changes, then check logs and a real player connection after an authorized start.
 - Follow the [save-format and backup guidance](architecture.md#saves-and-storage).
   Do not assume copying only `.db` and `.fwl` covers newer chunked saves.
 - Keep a recovery copy and test restoration in an isolated location. Do not

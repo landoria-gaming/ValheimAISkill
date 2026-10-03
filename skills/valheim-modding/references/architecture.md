@@ -254,10 +254,11 @@ character. `PlayerProfile` writes a length-delimited binary package and its
 SHA-512 hash to `.fch`; a hash is not encryption. These are versioned game formats,
 not generic SQLite databases or JSON files.
 
-For backup/restore, establish a completed save and stop the writer gracefully, or
-use a verified consistent snapshot mechanism. Preserve a recovery copy, the game
-version and required mods. Restore into an isolated location first. Never test
-a binary editor or an older game version against the only copy of a save.
+For backup/restore, establish a completed save and use a verified consistent
+snapshot mechanism where possible. If the writer must be stopped, explain why and
+ask the user explicitly before stopping it. Preserve a recovery copy, the game
+version and required mods. Restore into an isolated location first. Never test a
+binary editor or an older game version against the only copy of a save.
 Administration steps stay in [Routine maintenance](servers.md#routine-maintenance).
 
 ## How to extend this reference

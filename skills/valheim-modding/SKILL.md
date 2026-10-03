@@ -49,10 +49,9 @@ task-specific workflows below.
   Derive consistent project, assembly, plugin ID, package, and display names.
 - For an existing mod, follow its structure and inspect only the relevant code.
   A small fix does not need a new planning phase.
-- For player questions, use the [Valheim Wiki guide](references/sources.md#community-reference)
-  to find a relevant page. Reuse its HTML within the current session instead of
-  fetching the same page again, then verify game mechanics against installed code
-  and assets. Cache only focused inspection results persistently; do not build a
+- For player questions, use the [Valheim Wiki guide](references/wiki-guide.md)
+  to find a relevant page, then verify game mechanics against installed code and
+  assets. Cache only focused inspection results persistently; do not build a
   full-game index.
 - Start client-side when that meets the need. Explicitly describe any server or
   other-player requirements; do not turn a local feature into a network protocol.
@@ -95,10 +94,11 @@ task-specific workflows below.
   Explain necessary file access and data collection before installation.
 - Preserve the user's tools, scope, and permissions. Creating a mod does not
   authorize publishing it, pushing Git commits, or restarting a remote server.
-- Never stop, kill, or restart the Valheim client or a dedicated server unless
-  the user explicitly requests that action. A build, locked DLL, bug report, or
-  test does not grant permission. If a restart is needed, explain why and wait;
-  prefer graceful shutdown and protect unsaved progress when it is authorized.
+- Never start, stop, kill, or restart the Valheim client or a dedicated server
+  unless the user explicitly requests that specific action. Building, deploying,
+  testing, troubleshooting, maintenance, or backup does not grant permission.
+  Explain why process control is needed and ask first; when authorized, prefer
+  graceful shutdown and protect unsaved progress.
 
 ## Choose the task path
 
@@ -108,7 +108,7 @@ an evidence-backed answer; they do not require project generation or game testin
 | Task | Read |
 | --- | --- |
 | Understand game architecture, client/host/dedicated roles, networking, or save formats | [Architecture](references/architecture.md) |
-| Explain mechanics, bosses, weaknesses, or crafting recipes | Use [Gameplay advice](references/validation.md#gameplay-advice); the [Valheim Wiki guide](references/sources.md#community-reference) can help find a relevant page, then verify against installed code and assets |
+| Explain mechanics, bosses, weaknesses, or crafting recipes | Use [Gameplay advice](references/validation.md#gameplay-advice); the [Valheim Wiki guide](references/wiki-guide.md) can help find a relevant page, then verify against installed code and assets |
 | Help a player who is stuck or sees a bug | [Support and diagnosis](references/validation.md#player-support-and-diagnosis); inspect game code through [Environment](references/environment.md) only when needed |
 | Explain console or mod commands, devcommands, debugmode, or admin restrictions | [Commands](references/commands.md) |
 | Inspect DLLs | [Inspection scripts](references/inspection-scripts.md#code-inspect-assemblies-and-types); use its version-keyed full decompilation cache for broad searches, then [Environment](references/environment.md) for manual inspection |

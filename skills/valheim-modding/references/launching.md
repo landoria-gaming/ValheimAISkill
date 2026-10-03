@@ -5,6 +5,11 @@ When the user asks to launch Valheim, default to the equivalent of r2modman's
 explicit request for vanilla instead. This is the game client; dedicated-server
 startup belongs in [Servers](servers.md).
 
+Starting is never implicit: a build, deployment, test, or troubleshooting request
+does not authorize launching the client. Stop, kill, and restart actions also
+require an explicit request, as described by the shared process-control rule in
+`SKILL.md`.
+
 The store launch route is independent of the session's
 [Steam or PlayFab/crossplay backend](architecture.md#steam-and-playfab).
 

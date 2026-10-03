@@ -57,7 +57,9 @@ vanilla-game support.
   migration to r2modman.
 - Create a profile such as `dev`; install
   [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/).
-- Launch modded once to create config and logs. Keep this profile for development.
+- Ask the user to launch the profile once to create config and logs. Do not start
+  the game yourself unless the user explicitly asks you to launch it. Keep this
+  profile for development.
 - Manual BepInEx installation is an alternative: use the pack's ZIP instructions.
   Do not mix a manual game-root installation with a profile without understanding
   which loader and plugin directory will run.
@@ -119,9 +121,12 @@ examples, not API contracts; confirm exact signatures and behavior locally.
 ilspycmd -t Game "$VALHEIM_PATH/valheim_Data/Managed/assembly_valheim.dll"
 ```
 
-Omit `-o` for a quick read on standard output. When several files must be searched,
-create an agent-owned temporary directory outside the repository and decompile
-only the needed types there. For example, in Bash:
+Omit `-o` for a quick read on standard output. For broad searches across multiple
+Valheim classes or assemblies, use the persistent, version-keyed `decompile`
+command in [Inspection scripts](inspection-scripts.md#code-inspect-assemblies-and-types).
+Use a temporary directory only for a short disposable extract or when that helper
+is unavailable or incompatible. Keep it outside the repository, record the source
+version or hash, and discard it after the game is updated. For example, in Bash:
 
 ```bash
 VALHEIM_INSPECT_DIR=$(mktemp -d)
@@ -131,12 +136,10 @@ ilspycmd -t Game -o "$VALHEIM_INSPECT_DIR" \
 
 On PowerShell, create a uniquely named directory under `[IO.Path]::GetTempPath()`
 with `New-Item`, then pass its path with `-o`. Use `ilspycmd --help` for the installed
-version's options; `-l c` lists classes and `-p -o <directory>` exports a project
-only when a broader investigation needs it. Record the source assembly version
-or hash with temporary extracts and discard stale results after game updates.
-Do not require a persistent environment variable or source checkout. Adapt the
-DLL path for the actual platform and never commit or distribute game DLLs or
-decompiled source. A plausible method name is not verification.
+version's options; `-l c` lists classes. Do not require a persistent environment
+variable or source checkout. Adapt the DLL path for the actual platform and never
+commit or distribute game DLLs or decompiled source. A plausible method name is
+not verification.
 
 For dedicated-server questions, start with matching-version client DLLs for shared
 gameplay logic. See [shared code and build differences](architecture.md#shared-client-and-server-code)

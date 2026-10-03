@@ -92,8 +92,9 @@ dotnet build -c Release -p:DeployOnBuild=true
   world does not reload it. Explain this requirement and wait for the user's
   explicit restart request or for them to restart it themselves.
 
-When launching is part of the test scope, use the selected profile's
-[Start modded workflow](launching.md).
+Building, deploying, or testing does not by itself authorize starting Valheim.
+If the user explicitly asks you to launch the game for a test, use the selected
+profile's [Start modded workflow](launching.md).
 
 [Landoria Quick Launch](https://github.com/landoria-gaming/Landoria.QuickLaunch)
 can speed up repeated world entry. Use disposable test characters/worlds.
