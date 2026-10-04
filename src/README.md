@@ -7,8 +7,8 @@ plain-language help for players with practical tools for modders.
 ## Download and install
 
 Open the [latest snapshot pre-release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
-and download the ZIP listed under **Assets**. Extract the `valheim-ai-skill`
-folder from the ZIP into either:
+and download **`valheim-ai-skill.zip`** under **Assets**. Extract its
+`valheim-ai-skill` folder into either:
 
 - User-wide: `~/.agents/skills/valheim-ai-skill/` (Windows: `%USERPROFILE%\.agents\skills\valheim-ai-skill\`).
 - One project: `<project>/.agents/skills/valheim-ai-skill/`.
