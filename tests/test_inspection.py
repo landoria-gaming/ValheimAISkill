@@ -13,7 +13,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / "src/scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 import asset_index

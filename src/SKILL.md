@@ -5,6 +5,12 @@ description: "Create and debug Valheim BepInEx mods, launch modded clients, pack
 
 # Valheim BepInEx Modding
 
+At the start of each task, run `python scripts/cleanup_cache.py` from the skill
+directory. It clears the persistent inspection cache once per local calendar
+day; cached results may need to be regenerated. See [Inspection scripts](references/inspection-scripts.md#storage-and-validity)
+for the date marker and the small amount of metadata it preserves. If Python is
+unavailable, continue without running cache maintenance.
+
 Turn a player's idea into a small, maintainable mod. Use local game assemblies
 and assets as evidence and investigate player problems without requiring a mod
 project. This skill works without private Landoria repositories.

@@ -32,11 +32,11 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - name: Install test dependencies
-        run: python -m pip install -r scripts/requirements-assets.txt
+        run: python -m pip install -r src/scripts/requirements-assets.txt
       - name: Test distribution and inspection helpers
         run: python -m unittest discover -s tests -p "test_*.py" -v
-      - name: Validate the release ZIP
-        run: python scripts/package_skill.py
+      - name: Build and validate the release ZIP with MSBuild
+        run: dotnet msbuild scripts/SkillPackage.proj -t:package
 
   snapshot:
     needs: test
@@ -53,7 +53,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Build snapshot package
-        run: python scripts/package_skill.py
+        run: dotnet msbuild scripts/SkillPackage.proj -t:package
       - name: Publish rolling snapshot prerelease
         shell: bash
         env:

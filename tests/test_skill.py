@@ -16,9 +16,9 @@ from pathlib import Path
 from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
-
-from package_skill import FILES, SKILL_ROOT, TEMPLATE, build_archive, load_sources, validate_sources
+PROJECT = ROOT / "scripts/SkillPackage.proj"
+SKILL_ROOT = ROOT / "src"
+TEMPLATE = "assets/mod-template/"
 
 
 WITH_GAME = "--with-game" in sys.argv
@@ -26,66 +26,128 @@ if WITH_GAME:
     sys.argv.remove("--with-game")
 
 
-def run(*args, success=True):
+def run(*args, success=True, env=None):
     """Run a bounded command and expose its output only on unexpected failure."""
-    result = subprocess.run(args, capture_output=True, text=True, timeout=180)
+    result = subprocess.run(args, capture_output=True, text=True, timeout=180, env=env)
     if (result.returncode == 0) != success:
         raise AssertionError(f"Unexpected exit {result.returncode}:\n{result.stdout}\n{result.stderr}")
     return result.stdout + result.stderr
 
 
+def package(source, destination, success=True):
+    """Run the cross-platform MSBuild skill packager against a source folder."""
+    return run("dotnet", "msbuild", str(PROJECT), "-t:package",
+               f"-p:SkillSource={source}", f"-p:PackageFile={destination}", success=success)
+
+
 class DistributionTests(unittest.TestCase):
     """Keep cache files and accidental private content out of distribution."""
 
+    def test_daily_cache_cleanup_clears_results_once_and_preserves_metadata(self):
+        """Clear all generated cache data once per date without losing install state."""
+        with tempfile.TemporaryDirectory(prefix="valheim-cache-cleanup-test-") as temp:
+            root = Path(temp) / "cache"
+            (root / "code/1.0.0").mkdir(parents=True)
+            (root / "exports/model").mkdir(parents=True)
+            (root / "code/1.0.0/Game.cs").write_text("cached", encoding="utf-8")
+            (root / "exports/model/model.unitypackage").write_text("cached", encoding="utf-8")
+            installation = root / "installation.json"
+            installation.write_text("{}", encoding="utf-8")
+            (root / "last-cleanup.txt").write_text("2000-01-01\n", encoding="ascii")
+            env = os.environ.copy()
+            env["VALHEIM_SKILL_CACHE"] = str(root)
+            script = SKILL_ROOT / "scripts/cleanup_cache.py"
+
+            first = run(sys.executable, str(script), env=env)
+            self.assertIn("removed 2 cache item", first)
+            self.assertTrue(installation.is_file())
+            self.assertRegex((root / "last-cleanup.txt").read_text(encoding="ascii").strip(), r"^\d{4}-\d{2}-\d{2}$")
+            self.assertEqual(["installation.json", "last-cleanup.txt"], sorted(path.name for path in root.iterdir()))
+
+            (root / "code").mkdir()
+            (root / "code/new.cs").write_text("new cache", encoding="utf-8")
+            second = run(sys.executable, str(script), env=env)
+            self.assertIn("already completed", second)
+            self.assertTrue((root / "code/new.cs").is_file())
+
     def test_sources(self):
         """Validate real source files, including all local heading links."""
-        validate_sources(load_sources(SKILL_ROOT))
+        run("dotnet", "msbuild", str(PROJECT), "-t:ValidateSkill")
 
-    def test_archive_is_reproducible_and_excludes_unlisted_files(self):
-        """Package from an extracted copy with an injected cache and extra file."""
+    def test_local_deploy_target_is_safe_without_mutating_installation(self):
+        """Compile and validate local deploy paths without replacing the installed skill."""
+        output = run("dotnet", "msbuild", str(PROJECT), "-t:ValidateLocalDeploy")
+        self.assertIn("Local deployment is safe to run", output)
+
+    def test_local_deploy_replaces_only_the_skill_directory(self):
+        """Install into a temporary user profile and replace its old skill copy."""
+        with tempfile.TemporaryDirectory(prefix="valheim-skill-deploy-test-") as temp:
+            home = Path(temp) / "profile"
+            destination = home / ".agents/skills/valheim-modding"
+            destination.mkdir(parents=True)
+            (destination / "old-skill-file.txt").write_text("old", encoding="utf-8")
+            output = run("dotnet", "msbuild", str(PROJECT), "-t:TestDeployLocal",
+                         f"-p:TestHomeDirectory={home}")
+            self.assertIn("Installed the Valheim Modding skill", output)
+            self.assertTrue((destination / "SKILL.md").is_file())
+            self.assertTrue((destination / "README.md").is_file())
+            self.assertFalse((destination / "old-skill-file.txt").exists())
+
+    def test_archive_allowlist_excludes_unlisted_files(self):
+        """Package from an extracted copy and exclude injected files and caches."""
         with tempfile.TemporaryDirectory(prefix="valheim-skill-test-") as temp:
             root = Path(temp)
-            build_archive(SKILL_ROOT, root / "original.zip")
+            package(SKILL_ROOT, root / "original.zip")
             with ZipFile(root / "original.zip") as archive:
+                original = {name: archive.read(name) for name in archive.namelist()}
                 archive.extractall(root / "extracted")
             source = root / "extracted/valheim-modding"
             cache = source / TEMPLATE / "obj/private.cache"
             cache.parent.mkdir()
             cache.write_text("not for distribution", encoding="utf-8")
             (source / "unreviewed.txt").write_text("exclude me", encoding="utf-8")
-            build_archive(source, root / "repeat.zip")
-            self.assertEqual((root / "original.zip").read_bytes(), (root / "repeat.zip").read_bytes())
+            package(source, root / "repeat.zip")
             with ZipFile(root / "repeat.zip") as archive:
-                self.assertEqual(len(FILES), len(archive.namelist()))
+                self.assertEqual(set(archive.namelist()), set(original))
+                self.assertEqual({name: archive.read(name) for name in archive.namelist()}, original)
+                self.assertNotIn("valheim-modding/unreviewed.txt", archive.namelist())
                 self.assertIn("valheim-modding/" + TEMPLATE + ".template.config/template.json", archive.namelist())
                 self.assertIn("valheim-modding/README.md", archive.namelist())
+                json.loads(archive.read("valheim-modding/" + TEMPLATE + "manifest.json"))
 
     def test_broken_reference_is_rejected(self):
         """A missing shipped resource must fail even if a source cache exists."""
-        files = load_sources(SKILL_ROOT)
-        files["SKILL.md"] += b"\n[Broken](references/missing.md)\n"
-        with self.assertRaisesRegex(ValueError, "Broken local link"):
-            validate_sources(files)
+        with tempfile.TemporaryDirectory(prefix="valheim-skill-test-") as temp:
+            root = Path(temp)
+            with ZipFile(root / "skill.zip", "w") as archive:
+                pass
+            source = root / "source"
+            shutil.copytree(SKILL_ROOT, source, ignore=shutil.ignore_patterns("obj", "bin", "__pycache__"))
+            with (source / "SKILL.md").open("a", encoding="utf-8") as entry:
+                entry.write("\n[Broken](references/missing.md)\n")
+            self.assertIn("Broken local link", package(source, root / "broken.zip", success=False))
 
     def test_broken_anchor_is_rejected(self):
         """Keep the task router's section links usable."""
-        files = load_sources(SKILL_ROOT)
-        files["SKILL.md"] += b"\n[Broken](references/environment.md#missing-heading)\n"
-        with self.assertRaisesRegex(ValueError, "Broken heading link"):
-            validate_sources(files)
+        with tempfile.TemporaryDirectory(prefix="valheim-skill-test-") as temp:
+            root = Path(temp)
+            source = root / "source"
+            shutil.copytree(SKILL_ROOT, source, ignore=shutil.ignore_patterns("obj", "bin", "__pycache__"))
+            with (source / "SKILL.md").open("a", encoding="utf-8") as entry:
+                entry.write("\n[Broken](references/environment.md#missing-heading)\n")
+            self.assertIn("Broken heading link", package(source, root / "broken.zip", success=False))
 
     def test_personal_path_is_rejected(self):
         """Reject accidental absolute home paths without echoing their contents."""
         with tempfile.TemporaryDirectory(prefix="valheim-skill-test-") as temp:
             root = Path(temp)
-            build_archive(SKILL_ROOT, root / "skill.zip")
+            package(SKILL_ROOT, root / "skill.zip")
             with ZipFile(root / "skill.zip") as archive:
                 archive.extractall(root)
             source = root / "valheim-modding"
             path = source / "references/sources.md"
             path.write_text("Local file: C:/Users/ExamplePerson/private/file.txt", encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "Absolute personal path"):
-                load_sources(source)
+            self.assertIn("Personal absolute path", package(source, root / "private.zip", success=False))
 
 
 class TemplateTests(unittest.TestCase):
@@ -100,7 +162,7 @@ class TemplateTests(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         cls.root = Path(cls.temp.name)
         cls.hive = cls.root / "hive"
-        build_archive(SKILL_ROOT, cls.root / "skill.zip")
+        package(SKILL_ROOT, cls.root / "skill.zip")
         with ZipFile(cls.root / "skill.zip") as archive:
             archive.extractall(cls.root / "source")
         run("dotnet", "new", "install", str(cls.root / "source/valheim-modding" / TEMPLATE),

@@ -171,10 +171,16 @@ are rejected. The cache contains:
 - `assets/`: targeted JSON properties and other supported asset exports.
 - `exports/`: static model packages, kept without automatic reuse.
 
-Do not clear this cache at task completion. Old entries are retained; cleanup is explicit
-and targeted. A new model export creates a new directory rather than overwriting
-another result. This local storage is durable across sessions, not a backup or a
-guarantee against user/disk cleanup.
+At skill startup, run `python scripts/cleanup_cache.py`. The `last-cleanup.txt`
+marker stores the local date as `YYYY-MM-DD`. If the date differs from today,
+the script clears all cached inspection results and exports, then updates the
+marker. It preserves only `last-cleanup.txt` and `installation.json` (the
+remembered, verified game path). This means cached results may need to be
+generated again after a daily cleanup. The same-day check is idempotent.
+
+Do not clear the cache at task completion. A new model export creates a new
+directory rather than overwriting another result. This local storage is durable
+across sessions, not a backup or a guarantee against user/disk cleanup.
 
 AssetRipper working files and service logs remain temporary; stopping the
 task-owned service does not delete persistent results. Existing temporary results

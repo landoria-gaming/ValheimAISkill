@@ -1,0 +1,322 @@
+<Project>
+  <PropertyGroup>
+    <SkillSource Condition="'$(SkillSource)' == ''">$(MSBuildThisFileDirectory)..\src</SkillSource>
+    <PackageFile Condition="'$(PackageFile)' == ''">$(MSBuildThisFileDirectory)..\dist\valheim-modding.zip</PackageFile>
+    <IntermediateRoot>$(MSBuildThisFileDirectory)..\obj\skill-package-$([System.Guid]::NewGuid())</IntermediateRoot>
+    <SkillFolder>$(IntermediateRoot)\valheim-modding</SkillFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SkillFile Include="$(SkillSource)\SKILL.md" PackagePath="SKILL.md" />
+    <SkillFile Include="$(SkillSource)\README.md" PackagePath="README.md" />
+    <SkillFile Include="$(SkillSource)\LICENSE" PackagePath="LICENSE" />
+    <SkillFile Include="$(SkillSource)\agents\openai.yaml" PackagePath="agents/openai.yaml" />
+    <SkillFile Include="$(SkillSource)\references\environment.md" PackagePath="references/environment.md" />
+    <SkillFile Include="$(SkillSource)\references\development.md" PackagePath="references/development.md" />
+    <SkillFile Include="$(SkillSource)\references\validation.md" PackagePath="references/validation.md" />
+    <SkillFile Include="$(SkillSource)\references\unity.md" PackagePath="references/unity.md" />
+    <SkillFile Include="$(SkillSource)\references\assets.md" PackagePath="references/assets.md" />
+    <SkillFile Include="$(SkillSource)\references\packaging.md" PackagePath="references/packaging.md" />
+    <SkillFile Include="$(SkillSource)\references\servers.md" PackagePath="references/servers.md" />
+    <SkillFile Include="$(SkillSource)\references\sources.md" PackagePath="references/sources.md" />
+    <SkillFile Include="$(SkillSource)\references\inspection-scripts.md" PackagePath="references/inspection-scripts.md" />
+    <SkillFile Include="$(SkillSource)\references\architecture.md" PackagePath="references/architecture.md" />
+    <SkillFile Include="$(SkillSource)\references\launching.md" PackagePath="references/launching.md" />
+    <SkillFile Include="$(SkillSource)\references\commands.md" PackagePath="references/commands.md" />
+    <SkillFile Include="$(SkillSource)\references\wiki-guide.md" PackagePath="references/wiki-guide.md" />
+    <SkillFile Include="$(SkillSource)\assets\readme-template.md" PackagePath="assets/readme-template.md" />
+    <SkillFile Include="$(SkillSource)\assets\model-export\ModelPreview.shader" PackagePath="assets/model-export/ModelPreview.shader" />
+    <SkillFile Include="$(SkillSource)\scripts\inspection_common.py" PackagePath="scripts/inspection_common.py" />
+    <SkillFile Include="$(SkillSource)\scripts\cleanup_cache.py" PackagePath="scripts/cleanup_cache.py" />
+    <SkillFile Include="$(SkillSource)\scripts\inspect_code.py" PackagePath="scripts/inspect_code.py" />
+    <SkillFile Include="$(SkillSource)\scripts\asset_ripper.py" PackagePath="scripts/asset_ripper.py" />
+    <SkillFile Include="$(SkillSource)\scripts\asset_index.py" PackagePath="scripts/asset_index.py" />
+    <SkillFile Include="$(SkillSource)\scripts\inspect_assets.py" PackagePath="scripts/inspect_assets.py" />
+    <SkillFile Include="$(SkillSource)\scripts\export_model.py" PackagePath="scripts/export_model.py" />
+    <SkillFile Include="$(SkillSource)\scripts\requirements-assets.txt" PackagePath="scripts/requirements-assets.txt" />
+    <SkillFile Include="$(SkillSource)\scripts\search_wiki.py" PackagePath="scripts/search_wiki.py" />
+    <SkillFile Include="$(SkillSource)\scripts\wiki_to_markdown.py" PackagePath="scripts/wiki_to_markdown.py" />
+    <SkillFile Include="$(SkillSource)\scripts\fetch_wiki_image.py" PackagePath="scripts/fetch_wiki_image.py" />
+    <SkillFile Include="$(SkillSource)\scripts\requirements-wiki.txt" PackagePath="scripts/requirements-wiki.txt" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\.gitignore" PackagePath="assets/mod-template/.gitignore" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\.template.config\template.json" PackagePath="assets/mod-template/.template.config/template.json" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\ValheimMod.csproj" PackagePath="assets/mod-template/ValheimMod.csproj" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\Plugin.cs" PackagePath="assets/mod-template/Plugin.cs" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\ModConfigFile.cs" PackagePath="assets/mod-template/ModConfigFile.cs" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\PlayerSpawnHandler.cs" PackagePath="assets/mod-template/PlayerSpawnHandler.cs" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\Properties\AssemblyInfo.cs" PackagePath="assets/mod-template/Properties/AssemblyInfo.cs" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\build\Thunderstore.targets" PackagePath="assets/mod-template/build/Thunderstore.targets" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\manifest.json" PackagePath="assets/mod-template/manifest.json" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\README.md" PackagePath="assets/mod-template/README.md" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\DEVELOPMENT.md" PackagePath="assets/mod-template/DEVELOPMENT.md" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\CHANGELOG.md" PackagePath="assets/mod-template/CHANGELOG.md" />
+    <SkillFile Include="$(SkillSource)\assets\mod-template\LICENSE" PackagePath="assets/mod-template/LICENSE" />
+  </ItemGroup>
+
+  <UsingTask TaskName="ValidateSkillSources" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <SkillRoot ParameterType="System.String" Required="true" />
+      <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Class" Language="cs"><![CDATA[
+        using System;
+        using System.IO;
+        using System.Linq;
+        using System.Text.RegularExpressions;
+        using System.Collections.Generic;
+        using System.Xml.Linq;
+        using Microsoft.Build.Framework;
+        public class ValidateSkillSources : Microsoft.Build.Utilities.Task
+        {
+        public string SkillRoot { get; set; }
+        public ITaskItem[] Files { get; set; }
+        public override bool Execute()
+        {
+            var root = Path.GetFullPath(SkillRoot).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            var contents = new Dictionary<string, string>(StringComparer.Ordinal);
+            var personal = new Regex(@"(?:[A-Za-z]:[/\\](?:Users|Documents and Settings)[/\\]|/(?:Users|home)/)[^/\\\s<>]+[/\\]", RegexOptions.IgnoreCase);
+            foreach (var file in Files)
+            {
+                var path = Path.GetFullPath(file.ItemSpec);
+                if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) || !File.Exists(path))
+                {
+                    Log.LogError("Missing or unsafe skill resource: {0}", file.GetMetadata("PackagePath"));
+                    continue;
+                }
+                var current = new FileInfo(path);
+                while (current != null && !String.Equals(current.FullName.TrimEnd(Path.DirectorySeparatorChar), root, StringComparison.OrdinalIgnoreCase))
+                {
+                    if ((current.Attributes & FileAttributes.ReparsePoint) != 0)
+                        Log.LogError("Linked skill resources are not allowed: {0}", file.GetMetadata("PackagePath"));
+                    current = current.Directory == null ? null : new FileInfo(current.Directory.FullName);
+                }
+                var name = file.GetMetadata("PackagePath").Replace('\\', '/');
+                var text = File.ReadAllText(path);
+                if (personal.IsMatch(text)) Log.LogError("Personal absolute path found in {0}", name);
+                names.Add(name);
+                contents[name] = text;
+                try
+                {
+                    if (name.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase) || name.EndsWith(".targets", StringComparison.OrdinalIgnoreCase)) XDocument.Parse(text);
+                }
+                catch (Exception error) { Log.LogError("Invalid structured resource {0}: {1}", name, error.Message); }
+            }
+            if (!contents.TryGetValue("SKILL.md", out var skill) || !Regex.IsMatch(skill, @"\A---\r?\n(?:(?!\r?\n---).)*^name: valheim-modding$", RegexOptions.Multiline | RegexOptions.Singleline))
+                Log.LogError("SKILL.md must start with frontmatter containing name: valheim-modding");
+            if (skill == null || !Regex.IsMatch(skill, @"^description: \S.+$", RegexOptions.Multiline))
+                Log.LogError("SKILL.md frontmatter is missing its description");
+
+            var linkPattern = new Regex(@"\[[^\]\r\n]*\]\(([^)\r\n]+)\)");
+            var headingPattern = new Regex(@"^#{1,6}\s+(.+?)\s*#*\s*$", RegexOptions.Multiline);
+            foreach (var pair in contents.Where(p => p.Key.EndsWith(".md", StringComparison.OrdinalIgnoreCase)))
+            {
+                foreach (Match match in linkPattern.Matches(pair.Value))
+                {
+                    var target = match.Groups[1].Value.Trim().Trim('<', '>');
+                    if (target == "REPOSITORY_ISSUES_URL" || target == "REPOSITORY_DISCUSSIONS_URL") continue;
+                    if (Regex.IsMatch(target, @"^[A-Za-z][A-Za-z0-9+.-]*:")) continue;
+                    var hash = target.IndexOf('#');
+                    var pathPart = hash >= 0 ? target.Substring(0, hash) : target;
+                    var fragment = hash >= 0 ? Uri.UnescapeDataString(target.Substring(hash + 1)) : null;
+                    var parts = pair.Key.Split('/').Take(pair.Key.Split('/').Length - 1).ToList();
+                    foreach (var part in Uri.UnescapeDataString(pathPart).Split('/'))
+                    {
+                        if (part == "..") { if (parts.Count == 0) Log.LogError("Link escapes skill in {0}: {1}", pair.Key, target); else parts.RemoveAt(parts.Count - 1); }
+                        else if (!String.IsNullOrEmpty(part) && part != ".") parts.Add(part);
+                    }
+                    var resolved = pathPart.Length == 0 ? pair.Key : String.Join("/", parts);
+                    if (!names.Contains(resolved) && !names.Any(n => n.StartsWith(resolved + "/", StringComparison.OrdinalIgnoreCase))) { Log.LogError("Broken local link in {0}: {1}", pair.Key, target); continue; }
+                    if (!names.Contains(resolved)) continue;
+                    if (!String.IsNullOrEmpty(fragment))
+                    {
+                        var slugs = headingPattern.Matches(contents[resolved]).Cast<Match>().Select(m => Regex.Replace(m.Groups[1].Value.ToLowerInvariant(), @"[^\w\- ]", "").Replace(' ', '-'));
+                        if (!slugs.Contains(fragment, StringComparer.Ordinal)) Log.LogError("Broken heading link in {0}: {1}", pair.Key, target);
+                    }
+                }
+            }
+            return !Log.HasLoggedErrors;
+        }
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <UsingTask TaskName="DeployLocalSkill" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <PackageDirectory ParameterType="System.String" Required="true" />
+      <HomeDirectory ParameterType="System.String" />
+      <DryRun ParameterType="System.Boolean" />
+      <TestMode ParameterType="System.Boolean" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Class" Language="cs"><![CDATA[
+        using System;
+        using System.IO;
+        using System.Linq;
+        using Microsoft.Build.Framework;
+        public class DeployLocalSkill : Microsoft.Build.Utilities.Task
+        {
+            public string PackageDirectory { get; set; }
+            public string HomeDirectory { get; set; }
+            public bool DryRun { get; set; }
+            public bool TestMode { get; set; }
+            public override bool Execute()
+            {
+                var home = String.IsNullOrWhiteSpace(HomeDirectory)
+                    ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+                    : Path.GetFullPath(HomeDirectory);
+                if (String.IsNullOrWhiteSpace(home) || !Path.IsPathRooted(home))
+                {
+                    Log.LogError("Could not resolve the current user's home directory.");
+                    return false;
+                }
+                var skillsRoot = Path.GetFullPath(Path.Combine(home, ".agents", "skills"));
+                var target = Path.GetFullPath(Path.Combine(skillsRoot, "valheim-modding"));
+                var expectedTarget = Path.GetFullPath(Path.Combine(home, ".agents", "skills", "valheim-modding"));
+                var comparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+                if (TestMode)
+                {
+                    var tempRoot = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+                    if (String.IsNullOrWhiteSpace(HomeDirectory) || !home.StartsWith(tempRoot, comparison))
+                    {
+                        Log.LogError("Test deployment is restricted to a temporary profile under {0}", tempRoot);
+                        return false;
+                    }
+                }
+                if (!String.Equals(target, expectedTarget, comparison) ||
+                    String.Equals(target, Path.GetPathRoot(target), comparison))
+                {
+                    Log.LogError("Refusing unsafe local skill destination: {0}", target);
+                    return false;
+                }
+                var source = Path.GetFullPath(PackageDirectory);
+                if (!Directory.Exists(source) || !String.Equals(new DirectoryInfo(source).Name, "valheim-modding", StringComparison.Ordinal))
+                {
+                    Log.LogError("Expected the validated valheim-modding package directory: {0}", source);
+                    return false;
+                }
+
+                var parent = Directory.GetParent(target).FullName;
+                var homeFull = Path.GetFullPath(home).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                for (var current = new DirectoryInfo(parent); current != null &&
+                     current.FullName.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).StartsWith(homeFull, comparison);
+                     current = current.Parent)
+                {
+                    if (current.Exists && (current.Attributes & FileAttributes.ReparsePoint) != 0)
+                    {
+                        Log.LogError("Refusing to deploy through a linked directory: {0}", current.FullName);
+                        return false;
+                    }
+                    if (String.Equals(current.FullName.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), homeFull, comparison)) break;
+                }
+                if (File.Exists(target))
+                {
+                    Log.LogError("The skill destination exists as a file; refusing to replace it: {0}", target);
+                    return false;
+                }
+                if (Directory.Exists(target) && (new DirectoryInfo(target).Attributes & FileAttributes.ReparsePoint) != 0)
+                {
+                    Log.LogError("The skill destination is a link; refusing to remove its target: {0}", target);
+                    return false;
+                }
+                if (Directory.Exists(target) && ContainsLink(target))
+                {
+                    Log.LogError("The existing skill contains linked files or folders; refusing to remove it: {0}", target);
+                    return false;
+                }
+                if (DryRun)
+                {
+                    Log.LogMessage(MessageImportance.High, "Local deployment is safe to run; destination: {0}", target);
+                    return true;
+                }
+
+                Directory.CreateDirectory(skillsRoot);
+                var stage = Path.Combine(skillsRoot, ".valheim-modding-deploy-" + Guid.NewGuid().ToString("N"));
+                var backup = Path.Combine(skillsRoot, ".valheim-modding-backup-" + Guid.NewGuid().ToString("N"));
+                var movedOld = false;
+                try
+                {
+                    CopyTree(source, stage);
+                    if (Directory.Exists(target)) { Directory.Move(target, backup); movedOld = true; }
+                    Directory.Move(stage, target);
+                    if (movedOld)
+                    {
+                        try { Directory.Delete(backup, true); }
+                        catch (Exception error) { Log.LogWarning("The new skill is installed, but the old backup could not be removed: {0}", error.Message); }
+                    }
+                    Log.LogMessage(MessageImportance.High, "Installed the Valheim Modding skill at {0}", target);
+                    return true;
+                }
+                catch (Exception error)
+                {
+                    if (!Directory.Exists(target) && movedOld && Directory.Exists(backup)) Directory.Move(backup, target);
+                    if (Directory.Exists(stage)) Directory.Delete(stage, true);
+                    Log.LogError("Local skill deployment failed: {0}", error.Message);
+                    return false;
+                }
+            }
+            private static void CopyTree(string source, string destination)
+            {
+                Directory.CreateDirectory(destination);
+                foreach (var directory in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
+                    Directory.CreateDirectory(Path.Combine(destination, RelativeTo(source, directory)));
+                foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
+                {
+                    var info = new FileInfo(file);
+                    if ((info.Attributes & FileAttributes.ReparsePoint) != 0) throw new IOException("Package contains a linked file: " + file);
+                    var output = Path.Combine(destination, RelativeTo(source, file));
+                    Directory.CreateDirectory(Path.GetDirectoryName(output));
+                    File.Copy(file, output, false);
+                }
+            }
+            private static bool ContainsLink(string root)
+            {
+                foreach (var entry in Directory.GetFileSystemEntries(root))
+                {
+                    var attributes = File.GetAttributes(entry);
+                    if ((attributes & FileAttributes.ReparsePoint) != 0) return true;
+                    if ((attributes & FileAttributes.Directory) != 0 && ContainsLink(entry)) return true;
+                }
+                return false;
+            }
+            private static string RelativeTo(string root, string path)
+            {
+                var prefix = Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+                var full = Path.GetFullPath(path);
+                var comparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+                if (!full.StartsWith(prefix, comparison)) throw new IOException("Package path escaped its source directory: " + path);
+                return full.Substring(prefix.Length);
+            }
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="ValidateSkill">
+    <ValidateSkillSources SkillRoot="$(SkillSource)" Files="@(SkillFile)" />
+    <Message Importance="high" Text="Validated @(SkillFile->Count()) skill resources." />
+  </Target>
+
+  <Target Name="package" DependsOnTargets="ValidateSkill">
+    <RemoveDir Directories="$(IntermediateRoot)" />
+    <MakeDir Directories="$(SkillFolder)" />
+    <Copy SourceFiles="@(SkillFile)" DestinationFiles="@(SkillFile->'$(SkillFolder)/%(PackagePath)')" />
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(PackageFile)'))" />
+    <ZipDirectory SourceDirectory="$(IntermediateRoot)" DestinationFile="$(PackageFile)" Overwrite="true" />
+    <Message Importance="high" Text="Packaged skill archive: $(PackageFile)" />
+  </Target>
+
+  <Target Name="deploy-local" DependsOnTargets="package">
+    <DeployLocalSkill PackageDirectory="$(SkillFolder)" />
+  </Target>
+
+  <Target Name="ValidateLocalDeploy" DependsOnTargets="package">
+    <DeployLocalSkill PackageDirectory="$(SkillFolder)" DryRun="true" />
+  </Target>
+
+  <Target Name="TestDeployLocal" DependsOnTargets="package">
+    <DeployLocalSkill PackageDirectory="$(SkillFolder)" HomeDirectory="$(TestHomeDirectory)" TestMode="true" />
+  </Target>
+</Project>
