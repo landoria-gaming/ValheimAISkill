@@ -4,7 +4,7 @@ An AI agent skill for Valheim: make BepInEx mods, get unstuck in-game, learn the
 game's mechanics, and keep a dedicated server running smoothly. It combines
 plain-language help for players with practical tools for modders.
 
-## What it knows
+## What it can help you with
 
 ### Create a mod
 
@@ -110,10 +110,11 @@ You can ask gameplay and general support questions without installing Valheim on
 the agent's machine. The agent will be clear when it cannot verify an answer
 against local game files and can use the English Wiki where appropriate.
 
-For hands-on mod development, the agent needs read access to an installed Valheim
-game so it can check the actual assemblies and assets. A BepInEx profile and the
-.NET SDK are needed for the parts of the workflow that run or build the mod. See
-the [environment guide](references/environment.md).
+For hands-on mod development or local code and asset inspection, Valheim must be
+installed on the same machine as the agent, through Steam or Xbox/Game Pass, and
+the agent must be able to read the game directory. A BepInEx profile and the
+.NET SDK are also needed for the parts of the workflow that run or build a mod.
+See the [environment guide](references/environment.md).
 
 ## Get the skill
 
