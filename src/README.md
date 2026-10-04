@@ -63,7 +63,7 @@ See below for installation steps specific to each AI agent.
 | ChatGPT desktop — Codex mode | Install the extracted `valheim-ai-skill` folder in `~/.agents/skills/valheim-ai-skill/` (see above), then ask Codex to use `$valheim-ai-skill`. |
 | Codex CLI | Install in `~/.agents/skills/valheim-ai-skill/` and select it with `$valheim-ai-skill` or `/skills`. |
 | VS Code | Install and use the [Codex extension](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt); install the skill in `~/.agents/skills/valheim-ai-skill/` and select it with `$valheim-ai-skill` or `/skills`. |
-| JetBrains Rider | Install the [JetBrains AI Assistant plugin](https://www.jetbrains.com/help/ai-assistant/codex-agent.html), select **Codex** as the agent, and install the skill in `~/.agents/skills/valheim-ai-skill/`. Codex supports Agent Skills in JetBrains IDEs. |
+| JetBrains Rider | Install the [JetBrains AI Assistant plugin](https://www.jetbrains.com/help/ai-assistant/codex-agent.html), select **Codex** as the agent, then import or add the skill under **Settings → Tools → AI Assistant → Skills**. See [JetBrains skill setup](https://www.jetbrains.com/help/ai-assistant/agent-skills.html). |
 | Other compatible agents | See the compatibility list below; install the skill folder and use that agent's skill-selection method. |
 
 ### Compatible agents
