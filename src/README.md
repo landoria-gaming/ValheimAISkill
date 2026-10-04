@@ -18,26 +18,10 @@ and check that the package matches what the code actually does. It can explain
 publishing with Thunderstore CLI, but publishing is a separate step that always
 needs the user's permission.
 
-### Troubleshoot Valheim
-
-Investigate crashes, bugs, commands, and blocked progression using available
-logs and evidence. It can request a screenshot or a short video when that helps.
-
-### Get gameplay and crafting advice
-
-Look up bosses, weaknesses, weapons, food, recipes, biomes, and game mechanics.
-Use installed game code for executable behavior; for content not represented in
-code, consult the English Valheim Wiki and label the source.
-
 ### Inspect game code and assets
 
 Use ILSpy and AssetRipper helpers to inspect assemblies, prefabs, item icons,
 translations, and other assets, and export supported models for Unity Editor.
-
-### Set up and maintain a dedicated server
-
-Help with Windows and Linux servers, backups, updates, access, SteamCMD, and
-open-source container options such as Podman.
 
 ### Research trusted online sources
 
@@ -45,6 +29,17 @@ Look up current information in first-party Valheim and Iron Gate resources and
 official tool documentation. Use community pages and mod examples critically.
 The English Valheim Wiki is useful for gameplay content; installed game code
 remains the source of truth for executable behavior.
+
+### Set up and maintain a dedicated server
+
+Help with Windows and Linux servers, backups, updates, access, SteamCMD, and
+open-source container options such as Podman.
+
+### Get gameplay and crafting advice
+
+Look up bosses, weaknesses, weapons, food, recipes, biomes, and game mechanics.
+Use installed game code for executable behavior; for content not represented in
+code, consult the English Valheim Wiki and label the source.
 
 ## Download and install
 
@@ -67,11 +62,10 @@ desktop app as Codex mode; it is still distinct from asking ChatGPT in Chat mode
 
 | Where you're using it | How to install and start |
 | --- | --- |
-| ChatGPT desktop — Chat mode | If your account or workspace supports Skills, upload the ZIP from **Skills → Create → Upload from your computer**, then invoke it with `@valheim-ai-skill`. See [Skills in ChatGPT](https://help.openai.com/en/articles/20001066-skills-in-chatgpt). |
-| ChatGPT desktop — Codex mode | Install the extracted `valheim-ai-skill` folder in your user-wide `.agents/skills/` directory (see above), then ask Codex to use `$valheim-ai-skill`. |
-| Codex CLI or IDE extension | Install in `.agents/skills/` and select it with `$valheim-ai-skill` or `/skills`. |
-| VS Code | Install and use the [Codex extension](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt); install the skill in `.agents/skills/` and select it with `$valheim-ai-skill` or `/skills`. |
-| JetBrains Rider | Install the [JetBrains AI Assistant plugin](https://www.jetbrains.com/help/ai-assistant/codex-agent.html), select **Codex** as the agent, and install the skill in `.agents/skills/`. Codex supports Agent Skills in JetBrains IDEs. |
+| ChatGPT desktop — Codex mode | Install the extracted `valheim-ai-skill` folder in your user-wide `~/.agents/skills/` directory (see above), then ask Codex to use `$valheim-ai-skill`. |
+| Codex CLI | Install in `~/.agents/skills/` and select it with `$valheim-ai-skill` or `/skills`. |
+| VS Code | Install and use the [Codex extension](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt); install the skill in `~/.agents/skills/` and select it with `$valheim-ai-skill` or `/skills`. |
+| JetBrains Rider | Install the [JetBrains AI Assistant plugin](https://www.jetbrains.com/help/ai-assistant/codex-agent.html), select **Codex** as the agent, and install the skill in `~/.agents/skills/`. Codex supports Agent Skills in JetBrains IDEs. |
 | Other compatible agents | See the compatibility list below; install the skill folder and use that agent's skill-selection method. |
 
 ### Compatible agents
@@ -101,10 +95,6 @@ Then just ask naturally. For example:
 
 ## What you'll need
 
-You can ask gameplay and general support questions without installing Valheim on
-the agent's machine. The agent will be clear when it cannot verify an answer
-against local game files and can use the English Wiki where appropriate.
-
 For hands-on mod development or local code and asset inspection, Valheim must be
 installed on the same machine as the agent from [Steam](https://store.steampowered.com/app/892970/Valheim/)
 or [Xbox / Microsoft Store](https://www.xbox.com/en-US/games/store/valheim/9NCBL78CG9N7),
@@ -112,12 +102,8 @@ and the agent must be able to read the game directory. A BepInEx profile and the
 .NET SDK are also needed for the parts of the workflow that run or build a mod.
 See the [environment guide](references/environment.md).
 
-## Get the skill
+## Contact
 
-The [snapshot release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
-is rebuilt after successful pushes to `main`. It's a development snapshot, not
-a stable release. See [installation guidance for Codex and ChatGPT](https://learn.chatgpt.com/docs/build-skills)
-and [JetBrains AI Assistant](https://www.jetbrains.com/help/ai-assistant/agent-skills.html)
-for platform-specific details.
+Having trouble with the skill? [Open an issue on GitHub](https://github.com/landoria-gaming/ValheimAISkill/issues).
 
 [MIT License](LICENSE)
