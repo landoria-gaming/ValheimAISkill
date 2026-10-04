@@ -4,19 +4,6 @@ An AI agent skill for Valheim: make BepInEx mods, get unstuck in-game, learn the
 game's mechanics, and keep a dedicated server running smoothly. It combines
 plain-language help for players with practical tools for modders.
 
-## Download and install
-
-Open the [latest snapshot pre-release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
-and download **`valheim-ai-skill.zip`** under **Assets**. Extract the
-`valheim-ai-skill` folder into your user-wide skills directory:
-
-`~/.agents/skills/valheim-ai-skill/` (Windows:
-`%USERPROFILE%\.agents\skills\valheim-ai-skill\`).
-
-Or, from a cloned repository with the .NET SDK and Python installed, run
-`dotnet msbuild ValheimAISkill.proj -t:deploy-local`. This installs or updates
-the user-wide copy and clears the persistent inspection cache.
-
 ## What it knows
 
 ### Create a mod
@@ -58,6 +45,19 @@ Look up current information in first-party Valheim and Iron Gate resources and
 official tool documentation. Use community pages and mod examples critically.
 The English Valheim Wiki is useful for gameplay content; installed game code
 remains the source of truth for executable behavior.
+
+## Download and install
+
+Open the [latest snapshot pre-release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
+and download **`valheim-ai-skill.zip`** under **Assets**. Extract the
+`valheim-ai-skill` folder into your user-wide skills directory:
+
+`~/.agents/skills/valheim-ai-skill/` (Windows:
+`%USERPROFILE%\.agents\skills\valheim-ai-skill\`).
+
+Or, from a cloned repository with the .NET SDK and Python installed, run
+`dotnet msbuild ValheimAISkill.proj -t:deploy-local`. This installs or updates
+the user-wide copy and clears the persistent inspection cache.
 
 ## How to use it
 
