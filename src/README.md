@@ -7,11 +7,11 @@ plain-language help for players with practical tools for modders.
 ## Download and install
 
 Open the [latest snapshot pre-release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
-and download **`valheim-ai-skill.zip`** under **Assets**. Extract its
-`valheim-ai-skill` folder into either:
+and download **`valheim-ai-skill.zip`** under **Assets**. Extract the
+`valheim-ai-skill` folder into your user-wide skills directory:
 
-- User-wide: `~/.agents/skills/valheim-ai-skill/` (Windows: `%USERPROFILE%\.agents\skills\valheim-ai-skill\`).
-- One project: `<project>/.agents/skills/valheim-ai-skill/`.
+`~/.agents/skills/valheim-ai-skill/` (Windows:
+`%USERPROFILE%\.agents\skills\valheim-ai-skill\`).
 
 Or, from a cloned repository with the .NET SDK and Python installed, run
 `dotnet msbuild ValheimAISkill.proj -t:deploy-local`. This installs or updates
@@ -19,14 +19,45 @@ the user-wide copy and clears the persistent inspection cache.
 
 ## What it knows
 
-| If you want to… | It can help with… |
-| --- | --- |
-| Make a mod | Plan a feature, choose a mod name, write C# for BepInEx 5, configure settings, and use Harmony when needed. |
-| Build and ship a mod | Build and validate it, prepare a Thunderstore package, and help write a clear player-facing README. Publishing is always a separate, permission-based step. |
-| Figure out a game problem | Troubleshoot crashes, bugs, commands, and blocked progression using available logs and evidence. It can ask for a screenshot or short video when useful. |
-| Get gameplay advice | Look up bosses, enemy weaknesses, weapons, food, crafting recipes, biomes, and game mechanics in the English Valheim Wiki; check local game code when the answer depends on runtime behavior. |
-| Explore game files | Use ILSpy and AssetRipper helpers to inspect code, prefabs, item icons, translations, and other assets. |
-| Run a dedicated server | Set up and maintain a Windows or Linux server, plan backups and updates, and compare native SteamCMD with container options such as Podman. |
+### Create a mod
+
+Plan a feature, agree on a mod name, and build it with C# and BepInEx 5. The
+skill favors public game APIs and events, using Harmony patches only when needed.
+
+### Build and prepare a Thunderstore release
+
+Build and validate the mod, prepare its manifest, README, changelog, and ZIP,
+and check that the package matches what the code actually does. It can explain
+publishing with Thunderstore CLI, but publishing is a separate step that always
+needs the user's permission.
+
+### Troubleshoot Valheim
+
+Investigate crashes, bugs, commands, and blocked progression using available
+logs and evidence. It can request a screenshot or a short video when that helps.
+
+### Get gameplay and crafting advice
+
+Look up bosses, weaknesses, weapons, food, recipes, biomes, and game mechanics.
+Use installed game code for executable behavior; for content not represented in
+code, consult the English Valheim Wiki and label the source.
+
+### Inspect game code and assets
+
+Use ILSpy and AssetRipper helpers to inspect assemblies, prefabs, item icons,
+translations, and other assets, and export supported models for Unity Editor.
+
+### Set up and maintain a dedicated server
+
+Help with Windows and Linux servers, backups, updates, access, SteamCMD, and
+open-source container options such as Podman.
+
+### Research trusted online sources
+
+Look up current information in first-party Valheim and Iron Gate resources and
+official tool documentation. Use community pages and mod examples critically.
+The English Valheim Wiki is useful for gameplay content; installed game code
+remains the source of truth for executable behavior.
 
 ## How to use it
 
