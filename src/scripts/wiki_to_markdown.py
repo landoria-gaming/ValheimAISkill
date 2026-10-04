@@ -10,7 +10,7 @@ from urllib.request import Request, urlopen
 
 
 API_URL = "https://valheim.fandom.com/api.php"
-USER_AGENT = "ValheimModdingSkill/1.0 (wiki article reading)"
+USER_AGENT = "ValheimAISkill/1.0 (wiki article reading)"
 TIMEOUT_SECONDS = 25
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 

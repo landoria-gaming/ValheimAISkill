@@ -1,9 +1,9 @@
 ---
-name: valheim-modding
+name: valheim-ai-skill
 description: "Create and debug Valheim BepInEx mods, launch modded clients, package for Thunderstore, maintain dedicated servers, and answer player questions using game code and the English Valheim Wiki. Not for other games or unrelated C# work."
 ---
 
-# Valheim BepInEx Modding
+# Valheim AI Skill
 
 At the start of each task, run `python scripts/cleanup_cache.py` from the skill
 directory. It clears the persistent inspection cache once per local calendar

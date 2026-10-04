@@ -14,7 +14,7 @@ from urllib.request import Request, urlopen
 
 PROXY_BASE = "https://wsrv.nl/"
 IMAGE_HOST = "static.wikia.nocookie.net"
-USER_AGENT = "ValheimModdingSkill/1.0 (wiki image display)"
+USER_AGENT = "ValheimAISkill/1.0 (wiki image display)"
 TIMEOUT_SECONDS = 30
 MAX_IMAGE_BYTES = 16 * 1024 * 1024
 EXTENSION_RE = re.compile(r"\.(?:png|jpe?g|gif|webp|bmp|tiff?|avif|svg)(?=/|$)", re.I)

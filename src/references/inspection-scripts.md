@@ -158,9 +158,9 @@ persistent per-user data directory, not the OS temporary directory:
 
 | OS | Default cache root |
 | --- | --- |
-| Windows | `%USERPROFILE%/.cache/valheim-modding` (outside desktop-app sandbox caches) |
-| Linux | `$XDG_DATA_HOME/valheim-modding/cache`, or `~/.local/share/valheim-modding/cache` |
-| macOS | `~/Library/Application Support/ValheimModdingSkill/cache` |
+| Windows | `%USERPROFILE%/.cache/valheim-ai-skill` (outside desktop-app sandbox caches) |
+| Linux | `$XDG_DATA_HOME/valheim-ai-skill/cache`, or `~/.local/share/valheim-ai-skill/cache` |
+| macOS | `~/Library/Application Support/ValheimAISkill/cache` |
 
 Set `VALHEIM_SKILL_CACHE` to an absolute directory to override it. Git repositories
 are rejected. The cache contains:

@@ -282,7 +282,7 @@ class PersistentCacheTests(unittest.TestCase):
             with patch.dict(inspection_common.os.environ, {"LOCALAPPDATA": "redirected-app-cache"}, clear=True), \
                  patch.object(inspection_common.sys, "platform", "win32"), \
                  patch.object(inspection_common.Path, "home", return_value=Path(tmp)):
-                self.assertEqual(inspection_common.persistent_cache_root(), (Path(tmp) / ".cache/valheim-modding").resolve())
+                self.assertEqual(inspection_common.persistent_cache_root(), (Path(tmp) / ".cache/valheim-ai-skill").resolve())
 
     def test_asset_index_reused_and_invalidated(self):
         with tempfile.TemporaryDirectory() as tmp:

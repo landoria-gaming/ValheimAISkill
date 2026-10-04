@@ -169,7 +169,7 @@ Resolve the installed skill folder to an absolute path, then install its
 [local template](https://learn.microsoft.com/en-us/dotnet/core/tools/templates):
 
 ```bash
-dotnet new install "/path/to/valheim-modding/assets/mod-template"
+dotnet new install "/path/to/valheim-ai-skill/assets/mod-template"
 dotnet new valheim-mod -n FjordGreeting -o FjordGreeting \
   --pluginId org.example.fjordgreeting --modAuthor "Your Name"
 cd FjordGreeting

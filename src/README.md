@@ -1,8 +1,21 @@
-# Valheim Modding Skill
+# Valheim AI Skill
 
 An AI agent skill for Valheim: make BepInEx mods, get unstuck in-game, learn the
 game's mechanics, and keep a dedicated server running smoothly. It combines
 plain-language help for players with practical tools for modders.
+
+## Download and install
+
+Open the [latest snapshot pre-release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
+and download the ZIP listed under **Assets**. Extract the `valheim-ai-skill`
+folder from the ZIP into either:
+
+- User-wide: `~/.agents/skills/valheim-ai-skill/` (Windows: `%USERPROFILE%\.agents\skills\valheim-ai-skill\`).
+- One project: `<project>/.agents/skills/valheim-ai-skill/`.
+
+Or, from a cloned repository with the .NET SDK and Python installed, run
+`dotnet msbuild ValheimAISkill.proj -t:deploy-local`. This installs or updates
+the user-wide copy and clears the persistent inspection cache.
 
 ## What it knows
 
@@ -17,27 +30,22 @@ plain-language help for players with practical tools for modders.
 
 ## How to use it
 
-The complete skill lives in this repository's `src/` folder: `SKILL.md`,
-references, scripts, and templates stay together there. Copy that folder or extract the
-[latest snapshot ZIP](https://github.com/landoria-gaming/ValheimModdingSkill/releases/download/snapshot/valheim-modding.zip)
-into your agent's skills folder.
-
-To build the ZIP and install or update the skill for your current user, run this
-from the repository root with the .NET SDK installed:
+To build the ZIP from source, run this from the repository root with the .NET
+SDK installed:
 
 ```sh
-dotnet msbuild scripts/SkillPackage.proj -t:deploy-local
+# Validate and create dist/valheim-ai-skill.zip
+dotnet msbuild ValheimAISkill.proj -t:package
 ```
 
-This replaces only `~/.agents/skills/valheim-modding` after preparing the new
-copy. On Windows, that path is under your user profile.
+For the local deployment target, see [Download and install](#download-and-install).
 
 | Where you're using it | How to start |
 | --- | --- |
-| Codex app or CLI | Install `src/` as `valheim-modding` or ask with `$valheim-modding`. For a project-local install, place it in `.agents/skills/valheim-modding/`. |
+| Codex app or CLI | Install the extracted `valheim-ai-skill` folder or ask with `$valheim-ai-skill`. For a project-local install, place it in `.agents/skills/valheim-ai-skill/`. |
 | VS Code | Use the Codex extension, then select the skill with `$` or `/skills`. |
-| JetBrains Rider | Use an AI Assistant that supports Agent Skills; add the `src/` folder in **Settings → Tools → AI Assistant → Skills** if needed. |
-| ChatGPT | In a ChatGPT environment that supports skills, select it with `@valheim-modding`. |
+| JetBrains Rider | Use an AI Assistant that supports Agent Skills; add the installed `valheim-ai-skill` folder in **Settings → Tools → AI Assistant → Skills** if needed. |
+| ChatGPT | In a ChatGPT environment that supports skills, select it with `@valheim-ai-skill`. |
 | Other compatible agents | See the compatibility list below; install the skill folder and use that agent's skill-selection method. |
 
 ### Compatible agents
@@ -78,7 +86,7 @@ the [environment guide](references/environment.md).
 
 ## Get the skill
 
-The [snapshot release](https://github.com/landoria-gaming/ValheimModdingSkill/releases/tag/snapshot)
+The [snapshot release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
 is rebuilt after successful pushes to `main`. It's a development snapshot, not
 a stable release. See [installation guidance for Codex and ChatGPT](https://learn.chatgpt.com/docs/build-skills)
 and [JetBrains AI Assistant](https://www.jetbrains.com/help/ai-assistant/agent-skills.html)

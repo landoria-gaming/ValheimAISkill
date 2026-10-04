@@ -32,11 +32,11 @@ def persistent_cache_root():
     elif sys.platform == "win32":
         # Packaged desktop apps can redirect LOCALAPPDATA to their own sandbox.
         # Use a profile-level path shared by agents and unaffected by app removal.
-        root = Path.home() / ".cache/valheim-modding"
+        root = Path.home() / ".cache/valheim-ai-skill"
     elif sys.platform == "darwin":
-        root = Path.home() / "Library/Application Support/ValheimModdingSkill/cache"
+        root = Path.home() / "Library/Application Support/ValheimAISkill/cache"
     else:
-        root = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "valheim-modding/cache"
+        root = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "valheim-ai-skill/cache"
     if not root.is_absolute():
         raise ValueError("The persistent cache path must be absolute")
     root = root.resolve()

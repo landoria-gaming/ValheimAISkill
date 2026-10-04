@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import shutil
 import sys
+import argparse
 
 
 PRESERVED_FILES = {"last-cleanup.txt", "installation.json"}
@@ -17,11 +18,11 @@ def persistent_cache_root():
     if override:
         root = Path(override).expanduser()
     elif sys.platform == "win32":
-        root = Path.home() / ".cache/valheim-modding"
+        root = Path.home() / ".cache/valheim-ai-skill"
     elif sys.platform == "darwin":
-        root = Path.home() / "Library/Application Support/ValheimModdingSkill/cache"
+        root = Path.home() / "Library/Application Support/ValheimAISkill/cache"
     else:
-        root = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "valheim-modding/cache"
+        root = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "valheim-ai-skill/cache"
     if not root.is_absolute():
         raise ValueError("The persistent cache path must be absolute")
     root = root.resolve()
@@ -30,14 +31,14 @@ def persistent_cache_root():
     return root
 
 
-def cleanup(root=None, today=None):
+def cleanup(root=None, today=None, force=False):
     """Clear cached inspection results and preserve only operational metadata."""
     root = Path(root or persistent_cache_root()).resolve()
     root.mkdir(parents=True, exist_ok=True)
     marker = root / "last-cleanup.txt"
     day = (today or date.today()).isoformat()
     try:
-        if marker.is_file() and marker.read_text(encoding="ascii").strip() == day:
+        if not force and marker.is_file() and marker.read_text(encoding="ascii").strip() == day:
             return {"date": day, "skipped": True, "removed": 0}
     except (OSError, UnicodeError):
         pass
@@ -67,7 +68,10 @@ def cleanup(root=None, today=None):
 
 
 def main():
-    result = cleanup()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--force", action="store_true", help="clear the cache even if it was cleaned today")
+    args = parser.parse_args()
+    result = cleanup(force=args.force)
     if result["skipped"]:
         print(f"Persistent cache cleanup already completed on {result['date']}.")
     else:

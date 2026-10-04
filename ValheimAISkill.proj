@@ -1,9 +1,10 @@
 <Project>
   <PropertyGroup>
-    <SkillSource Condition="'$(SkillSource)' == ''">$(MSBuildThisFileDirectory)..\src</SkillSource>
-    <PackageFile Condition="'$(PackageFile)' == ''">$(MSBuildThisFileDirectory)..\dist\valheim-modding.zip</PackageFile>
-    <IntermediateRoot>$(MSBuildThisFileDirectory)..\obj\skill-package-$([System.Guid]::NewGuid())</IntermediateRoot>
-    <SkillFolder>$(IntermediateRoot)\valheim-modding</SkillFolder>
+    <SkillSource Condition="'$(SkillSource)' == ''">$(MSBuildThisFileDirectory)src</SkillSource>
+    <PackageFile Condition="'$(PackageFile)' == ''">$(MSBuildThisFileDirectory)dist\valheim-ai-skill.zip</PackageFile>
+    <PythonExecutable Condition="'$(PythonExecutable)' == ''">python</PythonExecutable>
+    <IntermediateRoot>$(MSBuildThisFileDirectory)obj\valheim-ai-skill-$([System.Guid]::NewGuid())</IntermediateRoot>
+    <SkillFolder>$(IntermediateRoot)\valheim-ai-skill</SkillFolder>
   </PropertyGroup>
 
   <ItemGroup>
@@ -103,8 +104,8 @@
                 }
                 catch (Exception error) { Log.LogError("Invalid structured resource {0}: {1}", name, error.Message); }
             }
-            if (!contents.TryGetValue("SKILL.md", out var skill) || !Regex.IsMatch(skill, @"\A---\r?\n(?:(?!\r?\n---).)*^name: valheim-modding$", RegexOptions.Multiline | RegexOptions.Singleline))
-                Log.LogError("SKILL.md must start with frontmatter containing name: valheim-modding");
+            if (!contents.TryGetValue("SKILL.md", out var skill) || !Regex.IsMatch(skill, @"\A---\r?\n(?:(?!\r?\n---).)*^name: valheim-ai-skill$", RegexOptions.Multiline | RegexOptions.Singleline))
+                Log.LogError("SKILL.md must start with frontmatter containing name: valheim-ai-skill");
             if (skill == null || !Regex.IsMatch(skill, @"^description: \S.+$", RegexOptions.Multiline))
                 Log.LogError("SKILL.md frontmatter is missing its description");
 
@@ -173,8 +174,8 @@
                     return false;
                 }
                 var skillsRoot = Path.GetFullPath(Path.Combine(home, ".agents", "skills"));
-                var target = Path.GetFullPath(Path.Combine(skillsRoot, "valheim-modding"));
-                var expectedTarget = Path.GetFullPath(Path.Combine(home, ".agents", "skills", "valheim-modding"));
+                var target = Path.GetFullPath(Path.Combine(skillsRoot, "valheim-ai-skill"));
+                var expectedTarget = Path.GetFullPath(Path.Combine(home, ".agents", "skills", "valheim-ai-skill"));
                 var comparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
                 if (TestMode)
                 {
@@ -192,9 +193,9 @@
                     return false;
                 }
                 var source = Path.GetFullPath(PackageDirectory);
-                if (!Directory.Exists(source) || !String.Equals(new DirectoryInfo(source).Name, "valheim-modding", StringComparison.Ordinal))
+                if (!Directory.Exists(source) || !String.Equals(new DirectoryInfo(source).Name, "valheim-ai-skill", StringComparison.Ordinal))
                 {
-                    Log.LogError("Expected the validated valheim-modding package directory: {0}", source);
+                    Log.LogError("Expected the validated valheim-ai-skill package directory: {0}", source);
                     return false;
                 }
 
@@ -233,8 +234,8 @@
                 }
 
                 Directory.CreateDirectory(skillsRoot);
-                var stage = Path.Combine(skillsRoot, ".valheim-modding-deploy-" + Guid.NewGuid().ToString("N"));
-                var backup = Path.Combine(skillsRoot, ".valheim-modding-backup-" + Guid.NewGuid().ToString("N"));
+                var stage = Path.Combine(skillsRoot, ".valheim-ai-skill-deploy-" + Guid.NewGuid().ToString("N"));
+                var backup = Path.Combine(skillsRoot, ".valheim-ai-skill-backup-" + Guid.NewGuid().ToString("N"));
                 var movedOld = false;
                 try
                 {
@@ -246,7 +247,7 @@
                         try { Directory.Delete(backup, true); }
                         catch (Exception error) { Log.LogWarning("The new skill is installed, but the old backup could not be removed: {0}", error.Message); }
                     }
-                    Log.LogMessage(MessageImportance.High, "Installed the Valheim Modding skill at {0}", target);
+                    Log.LogMessage(MessageImportance.High, "Installed the Valheim AI Skill at {0}", target);
                     return true;
                 }
                 catch (Exception error)
@@ -310,6 +311,7 @@
 
   <Target Name="deploy-local" DependsOnTargets="package">
     <DeployLocalSkill PackageDirectory="$(SkillFolder)" />
+    <Exec Command="&quot;$(PythonExecutable)&quot; &quot;$(SkillSource)\scripts\cleanup_cache.py&quot; --force" />
   </Target>
 
   <Target Name="ValidateLocalDeploy" DependsOnTargets="package">

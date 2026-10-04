@@ -16,7 +16,7 @@ from pathlib import Path
 from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
-PROJECT = ROOT / "scripts/SkillPackage.proj"
+PROJECT = ROOT / "ValheimAISkill.proj"
 SKILL_ROOT = ROOT / "src"
 TEMPLATE = "assets/mod-template/"
 
@@ -70,6 +70,11 @@ class DistributionTests(unittest.TestCase):
             self.assertIn("already completed", second)
             self.assertTrue((root / "code/new.cs").is_file())
 
+            forced = run(sys.executable, str(script), "--force", env=env)
+            self.assertIn("removed 1 cache item", forced)
+            self.assertFalse((root / "code").exists())
+            self.assertTrue(installation.is_file())
+
     def test_sources(self):
         """Validate real source files, including all local heading links."""
         run("dotnet", "msbuild", str(PROJECT), "-t:ValidateSkill")
@@ -83,12 +88,12 @@ class DistributionTests(unittest.TestCase):
         """Install into a temporary user profile and replace its old skill copy."""
         with tempfile.TemporaryDirectory(prefix="valheim-skill-deploy-test-") as temp:
             home = Path(temp) / "profile"
-            destination = home / ".agents/skills/valheim-modding"
+            destination = home / ".agents/skills/valheim-ai-skill"
             destination.mkdir(parents=True)
             (destination / "old-skill-file.txt").write_text("old", encoding="utf-8")
             output = run("dotnet", "msbuild", str(PROJECT), "-t:TestDeployLocal",
                          f"-p:TestHomeDirectory={home}")
-            self.assertIn("Installed the Valheim Modding skill", output)
+            self.assertIn("Installed the Valheim AI Skill", output)
             self.assertTrue((destination / "SKILL.md").is_file())
             self.assertTrue((destination / "README.md").is_file())
             self.assertFalse((destination / "old-skill-file.txt").exists())
@@ -101,7 +106,7 @@ class DistributionTests(unittest.TestCase):
             with ZipFile(root / "original.zip") as archive:
                 original = {name: archive.read(name) for name in archive.namelist()}
                 archive.extractall(root / "extracted")
-            source = root / "extracted/valheim-modding"
+            source = root / "extracted/valheim-ai-skill"
             cache = source / TEMPLATE / "obj/private.cache"
             cache.parent.mkdir()
             cache.write_text("not for distribution", encoding="utf-8")
@@ -110,10 +115,10 @@ class DistributionTests(unittest.TestCase):
             with ZipFile(root / "repeat.zip") as archive:
                 self.assertEqual(set(archive.namelist()), set(original))
                 self.assertEqual({name: archive.read(name) for name in archive.namelist()}, original)
-                self.assertNotIn("valheim-modding/unreviewed.txt", archive.namelist())
-                self.assertIn("valheim-modding/" + TEMPLATE + ".template.config/template.json", archive.namelist())
-                self.assertIn("valheim-modding/README.md", archive.namelist())
-                json.loads(archive.read("valheim-modding/" + TEMPLATE + "manifest.json"))
+                self.assertNotIn("valheim-ai-skill/unreviewed.txt", archive.namelist())
+                self.assertIn("valheim-ai-skill/" + TEMPLATE + ".template.config/template.json", archive.namelist())
+                self.assertIn("valheim-ai-skill/README.md", archive.namelist())
+                json.loads(archive.read("valheim-ai-skill/" + TEMPLATE + "manifest.json"))
 
     def test_broken_reference_is_rejected(self):
         """A missing shipped resource must fail even if a source cache exists."""
@@ -144,7 +149,7 @@ class DistributionTests(unittest.TestCase):
             package(SKILL_ROOT, root / "skill.zip")
             with ZipFile(root / "skill.zip") as archive:
                 archive.extractall(root)
-            source = root / "valheim-modding"
+            source = root / "valheim-ai-skill"
             path = source / "references/sources.md"
             path.write_text("Local file: C:/Users/ExamplePerson/private/file.txt", encoding="utf-8")
             self.assertIn("Personal absolute path", package(source, root / "private.zip", success=False))
@@ -165,7 +170,7 @@ class TemplateTests(unittest.TestCase):
         package(SKILL_ROOT, cls.root / "skill.zip")
         with ZipFile(cls.root / "skill.zip") as archive:
             archive.extractall(cls.root / "source")
-        run("dotnet", "new", "install", str(cls.root / "source/valheim-modding" / TEMPLATE),
+        run("dotnet", "new", "install", str(cls.root / "source/valheim-ai-skill" / TEMPLATE),
             "--debug:custom-hive", str(cls.hive), "--force")
 
     def generate(self, name, version=None):
