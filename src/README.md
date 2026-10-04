@@ -96,9 +96,7 @@ Then just ask naturally. For example:
 For hands-on mod development or local code and asset inspection, Valheim must be
 installed on the same machine as the agent from [Steam](https://store.steampowered.com/app/892970/Valheim/)
 or [Xbox / Microsoft Store](https://www.xbox.com/en-US/games/store/valheim/9NCBL78CG9N7),
-and the agent must be able to read the game directory. A BepInEx profile and the
-.NET SDK are also needed for the parts of the workflow that run or build a mod.
-See the [environment guide](references/environment.md).
+and the agent must be able to read the game directory.
 
 ## Contact
 
