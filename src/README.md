@@ -59,24 +59,19 @@ Or, from a cloned repository with the .NET SDK and Python installed, run
 `dotnet msbuild ValheimAISkill.proj -t:deploy-local`. This installs or updates
 the user-wide copy and clears the persistent inspection cache.
 
-## How to use it
+See below for installation steps specific to each AI agent.
 
-To build the ZIP from source, run this from the repository root with the .NET
-SDK installed:
+The [ChatGPT desktop app](https://help.openai.com/en/articles/20001276-moving-to-the-new-chatgpt-desktop-app)
+has separate ChatGPT and Codex modes. The former Codex app is now part of this
+desktop app as Codex mode; it is still distinct from asking ChatGPT in Chat mode.
 
-```sh
-# Validate and create dist/valheim-ai-skill.zip
-dotnet msbuild ValheimAISkill.proj -t:package
-```
-
-For the local deployment target, see [Download and install](#download-and-install).
-
-| Where you're using it | How to start |
+| Where you're using it | How to install and start |
 | --- | --- |
-| Codex app or CLI | Install the extracted `valheim-ai-skill` folder or ask with `$valheim-ai-skill`. For a project-local install, place it in `.agents/skills/valheim-ai-skill/`. |
-| VS Code | Use the Codex extension, then select the skill with `$` or `/skills`. |
-| JetBrains Rider | Use an AI Assistant that supports Agent Skills; add the installed `valheim-ai-skill` folder in **Settings → Tools → AI Assistant → Skills** if needed. |
-| ChatGPT | In a ChatGPT environment that supports skills, select it with `@valheim-ai-skill`. |
+| ChatGPT desktop — Chat mode | If your account or workspace supports Skills, upload the ZIP from **Skills → Create → Upload from your computer**, then invoke it with `@valheim-ai-skill`. See [Skills in ChatGPT](https://help.openai.com/en/articles/20001066-skills-in-chatgpt). |
+| ChatGPT desktop — Codex mode | Install the extracted `valheim-ai-skill` folder in your user-wide `.agents/skills/` directory (see above), then ask Codex to use `$valheim-ai-skill`. |
+| Codex CLI or IDE extension | Install in `.agents/skills/` and select it with `$valheim-ai-skill` or `/skills`. |
+| VS Code | Install and use the [Codex extension](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt); install the skill in `.agents/skills/` and select it with `$valheim-ai-skill` or `/skills`. |
+| JetBrains Rider | Install the [JetBrains AI Assistant plugin](https://www.jetbrains.com/help/ai-assistant/codex-agent.html), select **Codex** as the agent, and install the skill in `.agents/skills/`. Codex supports Agent Skills in JetBrains IDEs. |
 | Other compatible agents | See the compatibility list below; install the skill folder and use that agent's skill-selection method. |
 
 ### Compatible agents
@@ -111,8 +106,9 @@ the agent's machine. The agent will be clear when it cannot verify an answer
 against local game files and can use the English Wiki where appropriate.
 
 For hands-on mod development or local code and asset inspection, Valheim must be
-installed on the same machine as the agent, through Steam or Xbox/Game Pass, and
-the agent must be able to read the game directory. A BepInEx profile and the
+installed on the same machine as the agent from [Steam](https://store.steampowered.com/app/892970/Valheim/)
+or [Xbox / Microsoft Store](https://www.xbox.com/en-US/games/store/valheim/9NCBL78CG9N7),
+and the agent must be able to read the game directory. A BepInEx profile and the
 .NET SDK are also needed for the parts of the workflow that run or build a mod.
 See the [environment guide](references/environment.md).
 
