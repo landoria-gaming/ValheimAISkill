@@ -47,6 +47,14 @@ Look up bosses, weaknesses, weapons, food, recipes, biomes, and game mechanics.
 Use installed game code for executable behavior; for content not represented in
 code, consult the [English Valheim Wiki](https://valheim.fandom.com/wiki/Valheim_Wiki) and label the source.
 
+## Demo
+
+Watch it in action: [Testing Valheim AI Skill with Codex in VS Code](https://youtu.be/2-PucHKb1Cc)
+
+The mod generated is pushed on thunderstore: 
+https://thunderstore.io/c/valheim/p/Landoria/HighJump/
+
+
 ## Download and install
 
 Open the [latest pre-release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
