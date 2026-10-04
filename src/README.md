@@ -1,49 +1,55 @@
 # Valheim AI Skill
 
-An AI agent skill for Valheim: make BepInEx mods, get unstuck in-game, learn the
-game's mechanics, and keep a dedicated server running smoothly. It combines
-plain-language help for players with practical tools for modders.
+An AI agent skill for [Valheim](https://www.valheimgame.com/) that helps you make [BepInEx](https://docs.bepinex.dev/)
+mods, get unstuck in-game, learn the game's mechanics, and keep a dedicated
+server running smoothly. It combines plain-language help for players with
+practical tools for modders.
 
 ## What it can help you with
 
 ### Create a mod
 
-Plan a feature, agree on a mod name, and build it with C# and BepInEx 5. The
-skill favors public game APIs and events, using Harmony patches only when needed.
+Plan a feature, agree on a mod name, and build it with C# and [BepInEx 5](https://docs.bepinex.dev/).
+The skill favors public game APIs and events, using Harmony patches only when needed.
 
 ### Build and prepare a Thunderstore release
 
 Build and validate the mod, prepare its manifest, README, changelog, and ZIP,
-and check that the package matches what the code actually does. It can explain
-publishing with Thunderstore CLI, but publishing is a separate step that always
-needs the user's permission.
+and check that the package matches what the code actually does for [Thunderstore](https://thunderstore.io/c/valheim/).
+It can explain publishing with the [Thunderstore CLI](https://github.com/thunderstore-io/thunderstore-cli),
+but publishing is a separate step that always needs the user's permission.
 
 ### Inspect game code and assets
 
-Use ILSpy and AssetRipper helpers to inspect assemblies, prefabs, item icons,
-translations, and other assets, and export supported models for Unity Editor.
+Use [ILSpy](https://github.com/icsharpcode/ILSpy) and
+[AssetRipper](https://github.com/AssetRipper/AssetRipper) helpers to inspect
+assemblies, prefabs, item icons, translations, and other assets, and export
+supported models for [Unity Editor](https://unity.com/download).
 
 ### Research trusted online sources
 
-Look up current information in first-party Valheim and Iron Gate resources and
-official tool documentation. Use community pages and mod examples critically.
-The English Valheim Wiki is useful for gameplay content; installed game code
-remains the source of truth for executable behavior.
+Look up current information in [Valheim's official support pages](https://www.valheimgame.com/support/),
+[Iron Gate Studio](https://irongate.se/) resources, and official tool
+documentation. Use community pages and mod examples critically. The [English
+Valheim Wiki](https://valheim.fandom.com/wiki/Valheim_Wiki) is useful for gameplay content; installed
+game code remains the source of truth for executable behavior.
 
 ### Set up and maintain a dedicated server
 
-Help with Windows and Linux servers, backups, updates, access, SteamCMD, and
-open-source container options such as Podman.
+Help with Windows and Linux servers, backups, updates, and access, using the
+[official dedicated server guide](https://www.valheimgame.com/support/a-guide-to-dedicated-servers/)
+as a starting point, plus SteamCMD and open-source container options such as
+[Podman](https://podman.io/).
 
 ### Get gameplay and crafting advice
 
 Look up bosses, weaknesses, weapons, food, recipes, biomes, and game mechanics.
 Use installed game code for executable behavior; for content not represented in
-code, consult the English Valheim Wiki and label the source.
+code, consult the [English Valheim Wiki](https://valheim.fandom.com/wiki/Valheim_Wiki) and label the source.
 
 ## Download and install
 
-Open the [latest snapshot pre-release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
+Open the [latest pre-release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
 and download **`valheim-ai-skill-1.0-snapshot.zip`** under **Assets**. Extract the
 `valheim-ai-skill` folder into your user-wide skills directory:
 
