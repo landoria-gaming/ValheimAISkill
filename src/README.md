@@ -50,15 +50,7 @@ and download **`valheim-ai-skill.zip`** under **Assets**. Extract the
 `~/.agents/skills/valheim-ai-skill/` (Windows:
 `%USERPROFILE%\.agents\skills\valheim-ai-skill\`).
 
-Or, from a cloned repository with the .NET SDK and Python installed, run
-`dotnet msbuild ValheimAISkill.proj -t:deploy-local`. This installs or updates
-the user-wide copy and clears the persistent inspection cache.
-
 See below for installation steps specific to each AI agent.
-
-The [ChatGPT desktop app](https://help.openai.com/en/articles/20001276-moving-to-the-new-chatgpt-desktop-app)
-has separate ChatGPT and Codex modes. The former Codex app is now part of this
-desktop app as Codex mode; it is still distinct from asking ChatGPT in Chat mode.
 
 | Where you're using it | How to install and start |
 | --- | --- |
