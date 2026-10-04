@@ -69,7 +69,7 @@ jobs:
           else
             gh api --method POST "repos/$GH_REPO/git/refs" -f ref=refs/tags/snapshot -f sha="$GITHUB_SHA" > /dev/null
           fi
-          notes=$(printf 'Automated Valheim AI Skill 1.0-snapshot from commit %s. This prerelease is replaced after successful pushes to main. It contains no Valheim DLLs or extracted game assets.\n\nFor installation and usage instructions, see [Download and install](https://github.com/landoria-gaming/ValheimAISkill#download-and-install).' "$GITHUB_SHA")
+          notes=$(printf 'Current version of the Valheim AI Skill: 1.0-snapshot. This prerelease is replaced after successful pushes to main. It contains no Valheim DLLs or extracted game assets.\n\nFor installation and usage instructions, see [Download and install](https://github.com/landoria-gaming/ValheimAISkill#download-and-install).' "$GITHUB_SHA")
           if gh release view snapshot > /dev/null 2>&1; then
             gh release edit snapshot --title "Valheim AI Skill 1.0-snapshot" --notes "$notes" --prerelease --latest=false
           gh release upload snapshot dist/valheim-ai-skill-1.0-snapshot.zip --clobber
