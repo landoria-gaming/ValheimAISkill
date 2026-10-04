@@ -76,7 +76,13 @@ refresh or the output missed needed content; if extraction looks incomplete, vie
 the article page as a fallback. This is session-only caching: do not save wiki
 pages or converted Markdown to the persistent disk cache or repository by default.
 
-## Display wiki images
+## Wiki images: use the fetch script
+
+**Whenever you fetch or show an image from the Valheim Wiki, use
+`scripts/fetch_wiki_image.py`. Do not fetch the image manually or embed a remote
+Wiki/proxy image URL in the conversation.** The script downloads through wsrv.nl,
+validates the image, and reuses the session cache. Then include the cached image
+itself in the user-visible response as described below.
 
 Only fetch an article image when it is relevant to the answer and you intend to
 show it to the user. Resolve the article's image to its best available source
@@ -88,15 +94,37 @@ refresh or the cached file is missing or invalid. Use the platform's supported
 local-image display mechanism and an absolute local path. In Windows Markdown
 image paths, use forward slashes (`C:/...`), not backslashes; for example:
 `![Greydwarf](C:/Users/<user>/AppData/Local/Temp/valheim-wiki-session/Greydwarf.png)`.
+Treat fetching, caching, and displaying as separate steps: do not claim the image
+was shown just because it was downloaded, opened in a tool, or its Markdown path
+was printed. Make the image itself part of the user-visible response using the
+platform's inline image output. If inline display is unavailable, say so plainly
+and provide the cached file as a link instead. Verify that the outgoing response
+contains the image before saying it is displayed.
 Do not commit the image, put it in the mod, or retain it in the persistent
 game-data cache. Keep the source page or image attribution available when
 presenting it.
 
-For image URLs hosted on `static.wikia.nocookie.net`, strip the URL at the end of
-the actual image filename extension before downloading. Remove any trailing
-`/revision/...` path, query string, or fragment after `.png`, `.jpg`, `.jpeg`,
-`.gif`, `.webp`, or another recognized image extension. For example, turn
-`https://static.wikia.nocookie.net/valheim/images/8/82/Greydwarf.png/revision/latest/scale-to-width-down/536?cb=...`
-into `https://static.wikia.nocookie.net/valheim/images/8/82/Greydwarf.png`.
-Download that cleaned URL into the session cache, then display the cached file;
-do not embed the remote image URL directly in the conversation.
+For image URLs hosted on `static.wikia.nocookie.net`, preserve the complete URL,
+including any `/revision/...` path and query string after `.png`, `.jpg`, `.jpeg`,
+`.gif`, `.webp`, or another recognized image extension. Pass the complete URL to
+the open-source
+[wsrv.nl image cache and resize proxy](https://wsrv.nl/docs/), download the
+proxy's validated image response into a dedicated session cache, then display
+the cached file; do not embed the remote or proxy URL directly in the conversation.
+
+Run `scripts/fetch_wiki_image.py` for the download and cache step:
+
+```text
+python scripts/fetch_wiki_image.py "https://static.wikia.nocookie.net/valheim/images/8/82/Greydwarf.png/revision/latest/scale-to-width-down/536?cb=..." --cache-dir "<dedicated-session-temp-folder>" --source-page "https://valheim.fandom.com/wiki/Greydwarf" --alt "Greydwarf"
+```
+
+Create one dedicated temporary cache folder per conversation/session and pass
+that same folder for every image lookup in that session. The script preserves the
+full `/revision/...` path and query string, and encodes the source host/path/query
+for wsrv.nl without the origin's `https://` scheme. This lets the proxy fetch the
+Wikia CDN image while the proxy request and returned image still use HTTPS. It
+rejects unsupported hosts and non-image responses, and keys cached files by the
+full source URL. Its JSON output includes a Markdown snippet with an absolute
+local path and forward slashes on Windows; use that snippet (or the returned path
+with the platform's local image display tool) and retain the article URL as
+attribution.

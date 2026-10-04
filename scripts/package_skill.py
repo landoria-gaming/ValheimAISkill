@@ -26,7 +26,7 @@ FILES = (
     "scripts/asset_ripper.py", "scripts/asset_index.py", "scripts/inspect_assets.py",
     "scripts/export_model.py",
     "scripts/export_prefab_catalog.py", "scripts/requirements-assets.txt",
-    "scripts/search_wiki.py", "scripts/wiki_to_markdown.py",
+    "scripts/search_wiki.py", "scripts/wiki_to_markdown.py", "scripts/fetch_wiki_image.py",
     "scripts/requirements-wiki.txt",
     *(TEMPLATE + name for name in (
         ".gitignore", ".template.config/template.json", "ValheimMod.csproj",

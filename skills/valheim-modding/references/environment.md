@@ -3,7 +3,9 @@
 ## Supported approach
 
 This toolchain is for mod development only. Gameplay questions and vanilla-game
-support need access to the installed game files, not this setup.
+support do not require this setup or a local game installation. Use local files
+when available; otherwise state the limits of code-level verification and consult
+the appropriate reference, such as the English Valheim Wiki.
 
 Use the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0),
 [VS Code](https://code.visualstudio.com/download) or
@@ -29,18 +31,20 @@ No Visual Studio desktop workload or Windows Build Tools is required by the temp
 
 | Task | Required local setup |
 | --- | --- |
-| Ask about Valheim gameplay, recipes, commands, or a vanilla-game problem | Read access to the installed Valheim game files. No BepInEx profile or developer tools are required. |
-| Diagnose a mod problem or inspect BepInEx logs | The game files and, when relevant, access to the user's selected mod-manager profile and logs. |
-| Create, build, launch, or test a mod | The game files, selected BepInEx profile, and the build/runtime tools needed by that task. |
+| Ask about Valheim gameplay, recipes, commands, or a vanilla-game problem | No local setup required. Game files are optional evidence for code-level checks; use the Wiki guide when appropriate. |
+| Diagnose a mod problem or inspect BepInEx logs | Relevant logs and, when needed, the selected profile or game files. If unavailable, explain what cannot be verified and request only the needed evidence. |
+| Create or change a mod, or build it against Valheim | Read access to the installed game's managed DLLs and relevant assets, plus the build tools needed by the task. A profile is needed only to run or test it. |
+| Launch or test a mod in game | The installed game and selected BepInEx profile, plus any task-specific runtime tools. |
 
-Resolve the game directory from an explicit path or `VALHEIM_PATH` when provided.
-Otherwise, check the last verified local path, then common Steam libraries and
-the standard Xbox location. If multiple installs are accessible, ask which one
-to use. After verifying that the managed assembly and game data are readable,
-remember the path and assembly fingerprint in the user's persistent skill cache,
-outside the repository. Revalidate it on later requests; if it moved or became
-inaccessible, ask for the new path. Never put it in the mod, repository, README,
-or package. The user needs no developer environment variable for gameplay help.
+When a mod-development or game-run task needs local files, resolve the game
+directory from an explicit path or `VALHEIM_PATH` when provided. Otherwise, check
+the last verified local path, then common Steam libraries and the standard Xbox
+location. If multiple installs are accessible, ask which one to use. Verify the
+managed assembly and relevant game data, then remember the path and assembly
+fingerprint in the user's persistent skill cache, outside the repository.
+Revalidate before use and after updates; if it moved or became inaccessible, ask
+for the new path. Never put it in the mod, repository, README, or package. The
+user needs no developer environment variable for gameplay help.
 
 ## Install and isolate a modding profile
 

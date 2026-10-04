@@ -4,7 +4,9 @@
 
 Use this path for a player question, gameplay blocker, crash, or unexpected behavior,
 even when no mod project exists. Do not assume that being stuck means a code defect.
-The accessible-game prerequisite in `SKILL.md` must already have passed.
+Local game access is optional for general support. Use installed code when it is
+available and useful, but do not block a question solely because the game is not
+installed or accessible.
 
 1. Establish the expected and observed behavior, reproduction steps, game version,
    platform, and whether the session is vanilla, modded, local, or on a server.
@@ -16,8 +18,9 @@ The accessible-game prerequisite in `SKILL.md` must already have passed.
    relevant conditions, state transitions, and call sites for that game version.
    Explain what the code establishes and what still depends on the player's state.
 4. Distinguish intended mechanics, configuration, mod conflicts, version mismatch,
-   and likely game bugs. If game-directory access is lost, stop and help restore
-   it; do not substitute web advice for the required local access.
+   and likely game bugs. If game-directory access is unavailable, do not claim
+   local verification. Use the Wiki for suitable content questions, or ask for
+   focused logs/files when an answer depends on runtime code.
 5. Explain the likely cause, confidence, and a safe next check in the user's language.
    Suggest a separate clean profile or disposable world for isolation when useful;
    do not remove mods from the player's real world merely to test a hypothesis.
@@ -48,10 +51,9 @@ relevant game version, difficulty, and mods when these affect the advice.
   unnecessary asset inspection.
 - Consider overrides from mods, difficulty, and active effects. Do not infer a
   boss's actual weakness from an enum, a default value, or a generic damage class.
-- If a particular value cannot be established after inspecting an accessible game,
-  label it unverified. If the game installation itself is missing or inaccessible,
-  apply the hard prerequisite instead of providing gameplay advice. Never claim
-  a code check that did not happen or reproduce decompiled game source in an answer.
+- If local game files are unavailable or a particular value cannot be established,
+  label it unverified and use the Wiki when appropriate. Never claim a code check
+  that did not happen or reproduce decompiled game source in an answer.
 - Turn verified mechanics into practical tips: useful damage types, attacks to
   avoid, safe openings, and preparation. Separate confirmed facts from tactical
   suggestions; respect the player's progression and requested spoiler level.
@@ -65,8 +67,8 @@ relevant game version, difficulty, and mods when these affect the advice.
   wiki; do not present them as code-verified. Show a short ingredient table and
   the necessary steps; do not require a project or technical vocabulary.
 
-This is an explanation-only path: the accessible game installation is required,
-but BepInEx, a mod project, a build, and save modifications are not.
+This is an explanation-only path: a local game installation, BepInEx, a mod
+project, a build, and save modifications are not required.
 
 ## Build
 

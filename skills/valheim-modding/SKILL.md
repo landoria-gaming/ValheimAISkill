@@ -9,41 +9,35 @@ Turn a player's idea into a small, maintainable mod. Use local game assemblies
 and assets as evidence and investigate player problems without requiring a mod
 project. This skill works without private Landoria repositories.
 
-## Hard prerequisite: an accessible Valheim installation
+## Game access depends on the task
 
-Before any Valheim task, locate the user's installed game (client or dedicated
-server) and verify read access to its actual directory, managed DLLs, and asset
-files. Accept the real path on Windows, Linux, or macOS; do not assume the Steam
-default or require write access. If the path has not been supplied, first reuse
-the last verified path in the local persistent skill cache; otherwise ask for
-the game path once and remember it there. Revalidate a remembered path before
-use and after an update. This game access is needed for player support and game
-data questions too; it does not mean the user needs a modding setup.
+Do not make a local Valheim installation a prerequisite for every use of this
+skill. For gameplay questions and general troubleshooting, use accessible evidence
+and the relevant references; when local code or assets are unavailable, be clear
+about that and use the English Valheim Wiki where appropriate.
 
-For a mod request, enforce this gate immediately when the user expresses intent
-to create or modify a mod, before brainstorming names or designs, asking other
-project-intake questions, inspecting repositories, or writing files. First verify
-that the actual Valheim installation is accessible; only then continue with the
-mod discussion and workflow below.
+An accessible game installation is required for hands-on mod development that
+depends on the game's assemblies or assets: creating or changing a mod, building
+against the local game, or testing/launching it. Check this as part of modding
+environment setup, before creating project files or writing code. Locate the
+actual game path and verify read access to its managed DLLs and relevant assets.
+Accept Windows, Linux, or macOS paths; do not assume the Steam default or require
+write access. Reuse and revalidate a remembered path when available. If the game
+is missing or inaccessible, pause only the work that needs those files and help
+the user set up or expose the installation; unrelated questions and advice can
+continue. Never request passwords, account tokens, administrator rights, or broad
+filesystem access when read access suffices.
+
+For a new mod, perform this environment check as soon as the user confirms they
+want to create or modify one, before brainstorming names or designs, asking other
+project-intake questions, inspecting repositories, or writing files. Continue
+with naming and project intake once the required files are accessible.
 
 BepInEx, a mod-manager profile, build tools, and their paths are task-specific:
 require them only to create, build, launch, or diagnose a mod, or to inspect
 mod-specific logs. Do not ask a player setting up a vanilla-game question to
 install BepInEx or configure developer environment variables. See
 [Environment](references/environment.md) for the distinction.
-
-**If Valheim is not installed, or the agent cannot read its game directory, stop.**
-The only permitted help is installing a legitimate copy of Valheim and helping the
-user make that installation accessible to the agent. Ask for the installation path
-or explain the agent's directory-access setup. Do not request passwords, account
-tokens, administrator rights, or broad filesystem access when read access suffices.
-
-Until this prerequisite passes, do not answer gameplay, boss, crafting, or command
-questions; diagnose bugs; create or modify mods; inspect detached copies of DLLs;
-package releases; or administer servers. Web documentation, a wiki, cached extracts,
-and general knowledge are not substitutes. Recheck after installation/access is
-fixed, then continue the original request. This gate takes precedence over the
-task-specific workflows below.
 
 ## Start from the request
 
@@ -71,9 +65,9 @@ task-specific workflows below.
   overrides. For content facts not represented in code, the Valheim Wiki can be
   the answer source: label it as wiki-sourced and do not imply it was verified
   against the installed game. Inspect assets only when the wiki is insufficient,
-  the question is asset-specific, or the user requests a check. If a behavior
-  remains unverified, say so; missing game access still triggers the hard
-  prerequisite above.
+  the question is asset-specific, or the user requests a check. If local game
+  files are unavailable, say what could not be verified and use an appropriate
+  source or ask for the specific files needed; do not imply a local code check.
 - Keep documents, comments, and commit messages in concise, simple English.
   Prefer useful bullets and tables.
 - Talk to the user in their language, with gamers as the audience: use a relaxed,
@@ -120,6 +114,7 @@ an evidence-backed answer; they do not require project generation or game testin
 | --- | --- |
 | Understand game architecture, client/host/dedicated roles, networking, or save formats | [Architecture](references/architecture.md) |
 | Explain mechanics, bosses, weaknesses, or crafting recipes | Use [Gameplay advice](references/validation.md#gameplay-advice); check code when it can answer, otherwise use the [Valheim Wiki guide](references/wiki-guide.md), and inspect assets only when needed |
+| Search the Valheim Wiki or fetch/show one of its images | [Valheim Wiki guide](references/wiki-guide.md); for images, use its `fetch_wiki_image.py` workflow |
 | Help a player who is stuck or sees a bug | [Support and diagnosis](references/validation.md#player-support-and-diagnosis); inspect game code through [Environment](references/environment.md) only when needed |
 | Explain console or mod commands, devcommands, debugmode, or admin restrictions | [Commands](references/commands.md) |
 | Inspect DLLs | [Inspection scripts](references/inspection-scripts.md#code-inspect-assemblies-and-types); use its version-keyed full decompilation cache for broad searches, then [Environment](references/environment.md) for manual inspection |
