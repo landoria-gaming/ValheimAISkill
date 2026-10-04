@@ -15,6 +15,9 @@ import zlib
 from pathlib import Path
 from zipfile import ZipFile
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+
 from package_skill import FILES, SKILL_ROOT, TEMPLATE, build_archive, load_sources, validate_sources
 
 
@@ -55,6 +58,7 @@ class DistributionTests(unittest.TestCase):
             with ZipFile(root / "repeat.zip") as archive:
                 self.assertEqual(len(FILES), len(archive.namelist()))
                 self.assertIn("valheim-modding/" + TEMPLATE + ".template.config/template.json", archive.namelist())
+                self.assertIn("valheim-modding/README.md", archive.namelist())
 
     def test_broken_reference_is_rejected(self):
         """A missing shipped resource must fail even if a source cache exists."""

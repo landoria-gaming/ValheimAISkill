@@ -13,7 +13,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-SCRIPTS = Path(__file__).resolve().parents[1] / "skills/valheim-modding/scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 import asset_index
@@ -21,7 +21,6 @@ import asset_ripper
 import inspect_assets
 import inspect_code
 import export_model
-import export_prefab_catalog
 import inspection_common
 from inspection_common import game_data
 from PIL import Image
@@ -284,29 +283,6 @@ class PersistentCacheTests(unittest.TestCase):
                  patch.object(inspection_common.sys, "platform", "win32"), \
                  patch.object(inspection_common.Path, "home", return_value=Path(tmp)):
                 self.assertEqual(inspection_common.persistent_cache_root(), (Path(tmp) / ".cache/valheim-modding").resolve())
-
-    def test_bulk_catalog_resume_and_changed_bundle(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            (root / "Bundles").mkdir()
-            bundle = root / "Bundles/fixture"
-            bundle.write_bytes(b"v1")
-            manifest = root / "manifest"
-            manifest.write_text("fixture")
-            rows = {("fixture", "a.prefab"): {"bundle": "fixture", "path": "a.prefab"}}
-            with patch.dict(inspection_common.os.environ, {"VALHEIM_SKILL_CACHE": str(root / "cache")}):
-                cache, identity = export_prefab_catalog.catalog_cache(manifest, rows)
-                inspection_common.save_json(cache, {"input_fingerprint": identity, "completed": ["fixture"], "rows": list(rows.values())})
-                with patch.object(export_prefab_catalog, "request") as request:
-                    result, count = export_prefab_catalog.inspect_bundles("http://localhost:1", rows, root / "Bundles", cache, identity)
-                    request.assert_not_called()
-                    self.assertEqual(count, 1)
-                    self.assertEqual(result, list(rows.values()))
-                bundle.write_bytes(b"v2 changed")
-                changed, revision = export_prefab_catalog.catalog_cache(manifest, rows)
-                self.assertNotEqual(cache, changed)
-                with self.assertRaisesRegex(ValueError, "other inputs"):
-                    export_prefab_catalog.inspect_bundles("http://localhost:1", rows, root / "Bundles", cache, revision)
 
     def test_asset_index_reused_and_invalidated(self):
         with tempfile.TemporaryDirectory() as tmp:

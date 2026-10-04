@@ -88,6 +88,11 @@ trying to replace an existing one. Add a concise changelog entry.
 
 ## Build a local package
 
+Use the .NET SDK's MSBuild targets as the default cross-platform path for building,
+staging, and creating the release ZIP on Windows, Linux, and macOS. Prefer MSBuild
+tasks such as `Copy` and `ZipDirectory` over platform-specific shell archivers
+when they meet the packaging needs. Keep the staged file list explicit.
+
 ```bash
 dotnet msbuild -restore -t:PackageMod -p:Configuration=Release -p:DeployOnBuild=false
 ```
@@ -113,9 +118,9 @@ Before calling the package ready:
 
 For an automated publishing workflow, prefer the open-source
 [Thunderstore CLI (`tcli`)](https://github.com/thunderstore-io/thunderstore-cli).
-It can build a package from `thunderstore.toml` and publish it to Thunderstore.
-Install the packaging tool with `dotnet tool install --global tcli`, or pin an
-appropriate version in a tool manifest for reproducible CI.
+Use it to publish the exact archive already built and checked by MSBuild. Install
+the CLI with `dotnet tool install --global tcli`, or pin an appropriate version
+in a tool manifest for reproducible CI.
 
 Use one packaging path per release: build the DLL, create the ZIP, run the release
 checks above, and publish that exact file. With the starter's MSBuild path:
@@ -126,8 +131,9 @@ tcli publish --file "artifacts/<ModName>.zip" --config-path thunderstore.toml
 
 This command uploads the package and requires explicit authorization for the
 destination, version, and account/team. Do not run it just to test a workflow.
-If the project uses `tcli build` instead, inspect and test its resulting ZIP,
-then pass that ZIP to `publish --file`; do not rebuild after verification.
+Use `tcli build` instead of MSBuild only when the user requests it or a concrete
+project requirement needs its packaging behavior. Inspect and test its resulting
+ZIP, then pass that exact ZIP to `publish --file`; do not rebuild after verification.
 See the [TCLI command reference](https://github.com/thunderstore-io/thunderstore-cli/wiki).
 
 Keep namespace, package version, communities, and categories in `thunderstore.toml`.

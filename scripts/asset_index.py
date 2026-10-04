@@ -35,7 +35,10 @@ def find_prefab(manifest, name):
     entries = [r for r in manifest if r["path"].lower().endswith(".prefab") and
                (r["path"].casefold() == name.casefold() or PurePosixPath(r["path"]).stem.casefold() == name.casefold())]
     if len(entries) != 1:
-        raise ValueError(f"Expected one prefab, found {len(entries)}. Use catalog search and pass the exact asset path")
+        raise ValueError(
+            f"Expected one prefab, found {len(entries)}. Run "
+            "inspect_assets.py catalog <query>, then pass the exact asset path"
+        )
     return entries[0]
 
 

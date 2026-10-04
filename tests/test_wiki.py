@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
-SCRIPTS = Path(__file__).resolve().parents[1] / "skills/valheim-modding/scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 import search_wiki

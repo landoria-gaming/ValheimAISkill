@@ -74,7 +74,10 @@ install BepInEx or configure developer environment variables. See
   friendly, accessible tone without forced slang. In French, use "tu" rather than
   "vous". Explain technical terms when needed; do not assume modding experience.
 - Prefer maintained open-source tools when they meet the task equally well.
-  Preserve a tool explicitly chosen by the user unless it cannot meet the need.
+  For .NET mod packaging, use cross-platform MSBuild targets via `dotnet msbuild`
+  for build, staging, and archive creation; reserve service-specific CLIs such as
+  TCLI for publishing or features MSBuild cannot provide. Preserve a tool
+  explicitly chosen by the user unless it cannot meet the need.
 - Prefer cross-platform tools, dependencies, scripts, paths, and build steps that
   work on Windows, Linux, and macOS. Use a platform-specific solution only when
   the task requires it or no practical portable option exists; isolate the

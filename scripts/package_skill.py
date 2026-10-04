@@ -12,10 +12,10 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
-SKILL_ROOT = REPOSITORY / "skills" / "valheim-modding"
+SKILL_ROOT = REPOSITORY
 TEMPLATE = "assets/mod-template/"
 FILES = (
-    "SKILL.md", "LICENSE", "agents/openai.yaml",
+    "SKILL.md", "README.md", "LICENSE", "agents/openai.yaml",
     "references/environment.md", "references/development.md",
     "references/validation.md", "references/unity.md", "references/assets.md",
     "references/packaging.md", "references/servers.md", "references/sources.md",
@@ -25,7 +25,7 @@ FILES = (
     "scripts/inspection_common.py", "scripts/inspect_code.py",
     "scripts/asset_ripper.py", "scripts/asset_index.py", "scripts/inspect_assets.py",
     "scripts/export_model.py",
-    "scripts/export_prefab_catalog.py", "scripts/requirements-assets.txt",
+    "scripts/requirements-assets.txt",
     "scripts/search_wiki.py", "scripts/wiki_to_markdown.py", "scripts/fetch_wiki_image.py",
     "scripts/requirements-wiki.txt",
     *(TEMPLATE + name for name in (
@@ -140,8 +140,8 @@ def build_archive(root, destination):
     files = load_sources(root)
     validate_sources(files)
     destination = destination.resolve()
-    if destination.is_relative_to(root.resolve()):
-        raise ValueError("Write the archive outside the skill source folder")
+    if destination.is_relative_to(root.resolve()) and not destination.is_relative_to(REPOSITORY / "dist"):
+        raise ValueError("Write generated archives under the repository's dist folder")
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="skill-package-", dir=destination.parent) as staging:
         staged = Path(staging) / destination.name

@@ -90,23 +90,6 @@ atlases, and separate alpha textures rather than returning an incorrect icon.
 For these cases, inspect the dependencies and use a verified mesh-aware extractor.
 Some prefabs have no inventory icon; report that fact without inventing one.
 
-### Prefab inventory with English names
-
-```bash
-python scripts/export_prefab_catalog.py \
-  --manifest "/path/to/valheim_Data/StreamingAssets/SoftRef/manifest_extended" \
-  --base-url http://127.0.0.1:PORT --game-version VERIFIED_VERSION \
-  --english-names \
-  --output "/chosen/report/valheim-prefabs.md"
-```
-
-Only request a bulk inventory when needed; a single icon or recipe uses targeted
-inspection. English names come from component fields and the local translation
-files in `LocalizationSettings` order, not a guessed conversion of prefab IDs.
-Unknown names remain blank. The report states scope and missing data.
-Bulk inspection resumes from the persistent cache by default. Optional `--cache`
-selects another local metadata file outside repositories; keep it for later runs.
-
 ### Static models for Unity Editor
 
 ```bash
@@ -139,7 +122,7 @@ its editable `Assets` tree, import instructions, and local provenance.
 
 Validate a requested export in Unity when available: check meshes, materials,
 references, transforms, and visible rendering. The repository's optional
-`scripts/test_model_import.py` imports the package into an isolated project and
+`tests/test_model_import.py` imports the package into an isolated project and
 renders a preview; it does not modify an existing Unity project or run Valheim.
 An archive structure check alone does not establish successful Unity import.
 
@@ -155,8 +138,8 @@ question is asset-specific, or the user requests verification. This avoids
 reopening broad sets of bundles and avoids building a full-game database.
 
 Notice when a specific inspection is slow or likely to be repeated. Reuse the
-existing persistent, version-keyed caches for decompiled types, prefab catalogs,
-icons, and requested asset properties. Offer a narrowly scoped catalog only when
+existing persistent, version-keyed caches for decompiled types, targeted prefab
+facts, icons, and requested asset properties. Offer a narrowly scoped index only when
 it would help with likely future questions, explain what it contains and any
 known time/storage cost, and wait for agreement before a long batch extraction.
 Do not propose indexing every bundle or rebuilding a full-game SQLite database.
@@ -182,7 +165,7 @@ persistent per-user data directory, not the OS temporary directory:
 Set `VALHEIM_SKILL_CACHE` to an absolute directory to override it. Git repositories
 are rejected. The cache contains:
 
-- `indexes/`: prefab facts, English names, bulk catalogs, and bundle indexes.
+- `indexes/`: targeted prefab facts, English names, and bundle indexes.
 - `code/`: ILSpy type lists and requested C#/IL extracts.
 - `images/`: inventory icons and targeted PNG exports.
 - `assets/`: targeted JSON properties and other supported asset exports.
@@ -207,9 +190,7 @@ Targeted exports also include request options and local tool-file stamps. Code,
 icon, and targeted-export hits verify output SHA-256 and provenance; damaged or
 incomplete entries are regenerated. A normal game update invalidates the affected
 cache. For files modified while preserving size and timestamps, use a new cache
-location or remove only the confirmed affected entry. Prefab-catalog resume caches
-include the manifest hash, bundle stamps, and inspector revision; an explicitly
-selected stale cache is rejected rather than silently reused.
+location or remove only the confirmed affected entry.
 
 These helpers do not install tools automatically, execute game assemblies, export
 a reconstructed game project, or promise runtime values unaffected by mods.

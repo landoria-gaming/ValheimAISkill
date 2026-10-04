@@ -34,7 +34,7 @@ the installed code remains authoritative under the shared source-of-truth rule.
 | [Unity 6.0 Scripting API](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/index.html) | Trusted source for Unity types and members; verify availability against Valheim's DLLs |
 | [Harmony](https://harmony.pardeike.net/) | Patching documentation |
 | [Thunderstore package rules](https://wiki.thunderstore.io/mods/creating-a-package) | Manifest, icon, README, and ZIP requirements |
-| [Thunderstore CLI](https://github.com/thunderstore-io/thunderstore-cli) | Build and publish packages locally or from CI workflows |
+| [Thunderstore CLI](https://github.com/thunderstore-io/thunderstore-cli) | Publish verified packages locally or from CI; use MSBuild by default to build and package .NET mods |
 | [Valheim category API](https://thunderstore.io/api/experimental/community/valheim/category/) | Current category names and slugs for Valheim publishing |
 | [MIT template](https://choosealicense.com/licenses/mit/) | Public-source license template maintained by GitHub |
 | [GitHub Actions](https://docs.github.com/en/actions) | Optional CI |
