@@ -44,7 +44,7 @@ code, consult the English Valheim Wiki and label the source.
 ## Download and install
 
 Open the [latest snapshot pre-release](https://github.com/landoria-gaming/ValheimAISkill/releases/tag/snapshot)
-and download **`valheim-ai-skill.zip`** under **Assets**. Extract the
+and download **`valheim-ai-skill-1.0-snapshot.zip`** under **Assets**. Extract the
 `valheim-ai-skill` folder into your user-wide skills directory:
 
 `~/.agents/skills/valheim-ai-skill/` (Windows:
@@ -54,10 +54,10 @@ See below for installation steps specific to each AI agent.
 
 | Where you're using it | How to install and start |
 | --- | --- |
-| ChatGPT desktop — Codex mode | Install the extracted `valheim-ai-skill` folder in your user-wide `~/.agents/skills/` directory (see above), then ask Codex to use `$valheim-ai-skill`. |
-| Codex CLI | Install in `~/.agents/skills/` and select it with `$valheim-ai-skill` or `/skills`. |
-| VS Code | Install and use the [Codex extension](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt); install the skill in `~/.agents/skills/` and select it with `$valheim-ai-skill` or `/skills`. |
-| JetBrains Rider | Install the [JetBrains AI Assistant plugin](https://www.jetbrains.com/help/ai-assistant/codex-agent.html), select **Codex** as the agent, and install the skill in `~/.agents/skills/`. Codex supports Agent Skills in JetBrains IDEs. |
+| ChatGPT desktop — Codex mode | Install the extracted `valheim-ai-skill` folder in `~/.agents/skills/valheim-ai-skill/` (see above), then ask Codex to use `$valheim-ai-skill`. |
+| Codex CLI | Install in `~/.agents/skills/valheim-ai-skill/` and select it with `$valheim-ai-skill` or `/skills`. |
+| VS Code | Install and use the [Codex extension](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt); install the skill in `~/.agents/skills/valheim-ai-skill/` and select it with `$valheim-ai-skill` or `/skills`. |
+| JetBrains Rider | Install the [JetBrains AI Assistant plugin](https://www.jetbrains.com/help/ai-assistant/codex-agent.html), select **Codex** as the agent, and install the skill in `~/.agents/skills/valheim-ai-skill/`. Codex supports Agent Skills in JetBrains IDEs. |
 | Other compatible agents | See the compatibility list below; install the skill folder and use that agent's skill-selection method. |
 
 ### Compatible agents

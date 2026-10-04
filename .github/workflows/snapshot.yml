@@ -53,7 +53,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Build snapshot package
-        run: dotnet msbuild ValheimAISkill.proj -t:package
+        run: dotnet msbuild ValheimAISkill.proj -t:package -p:PackageFile=dist/valheim-ai-skill-1.0-snapshot.zip
       - name: Publish rolling snapshot prerelease
         shell: bash
         env:
@@ -69,10 +69,10 @@ jobs:
           else
             gh api --method POST "repos/$GH_REPO/git/refs" -f ref=refs/tags/snapshot -f sha="$GITHUB_SHA" > /dev/null
           fi
-          notes="Automated skill snapshot from commit $GITHUB_SHA. This prerelease is replaced after successful pushes to main. It contains no Valheim DLLs or extracted game assets."
+          notes=$(printf 'Automated Valheim AI Skill 1.0-snapshot from commit %s. This prerelease is replaced after successful pushes to main. It contains no Valheim DLLs or extracted game assets.\n\nFor installation and usage instructions, see [Download and install](https://github.com/landoria-gaming/ValheimAISkill#download-and-install).' "$GITHUB_SHA")
           if gh release view snapshot > /dev/null 2>&1; then
-            gh release edit snapshot --title "Valheim AI Skill snapshot" --notes "$notes" --prerelease --latest=false
-          gh release upload snapshot dist/valheim-ai-skill.zip --clobber
+            gh release edit snapshot --title "Valheim AI Skill 1.0-snapshot" --notes "$notes" --prerelease --latest=false
+          gh release upload snapshot dist/valheim-ai-skill-1.0-snapshot.zip --clobber
           else
-            gh release create snapshot dist/valheim-ai-skill.zip --verify-tag --title "Valheim AI Skill snapshot" --notes "$notes" --prerelease --latest=false
+            gh release create snapshot dist/valheim-ai-skill-1.0-snapshot.zip --verify-tag --title "Valheim AI Skill 1.0-snapshot" --notes "$notes" --prerelease --latest=false
           fi
